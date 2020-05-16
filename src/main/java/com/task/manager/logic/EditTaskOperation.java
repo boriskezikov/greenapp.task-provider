@@ -22,9 +22,8 @@ public class EditTaskOperation {
         var oldTask = r2dbcAdapter.findById(request.taskId)
             .switchIfEmpty(Mono.error(new RuntimeException("No such task exist with id = " + request.taskId)));
         return request.asMono()
-            .map(r -> r.newTask)
             .zipWith(oldTask)
-            .flatMap(t -> t.getT2().updateRequest(t.getT1()))
+            .flatMap(t -> t.getT1().updateRequest(t.getT2()))
             .flatMap(r2dbcAdapter::update)
             .then();
     }
@@ -37,6 +36,13 @@ public class EditTaskOperation {
 
         public Mono<EditTaskRequest> asMono() {
             return Mono.just(this);
+        }
+
+        public Mono<UpdateTaskRequest> updateRequest(Task oldTask) {
+            if (oldTask.equals(this.newTask)) {
+                return Mono.empty();
+            }
+            return new UpdateTaskRequest(newTask, oldTask.id).asMono();
         }
     }
 

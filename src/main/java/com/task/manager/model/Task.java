@@ -1,13 +1,12 @@
 package com.task.manager.model;
 
-import com.task.manager.logic.EditTaskOperation.UpdateTaskRequest;
 import io.r2dbc.spi.Row;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import javax.validation.constraints.NotNull;
 
@@ -26,7 +25,7 @@ public class Task {
     public final Point coordinate;
     @NotNull
     public final Type type;
-    //public final List<Byte[]> photo;
+    public final List<Photo> photos;
     @NotNull
     public final Long reward;
     public final Long assignee;
@@ -64,15 +63,12 @@ public class Task {
             .build();
     }
 
-    public Mono<Task> asMono() {
-        return Mono.just(this);
-    }
+    @RequiredArgsConstructor
+    public static class Photo {
 
-    public Mono<UpdateTaskRequest> updateRequest(Task newTask) {
-        if (this.equals(newTask)) {
-            return Mono.empty();
-        }
-        return new UpdateTaskRequest(newTask, this.id).asMono();
+        private final Long id;
+        private final Long taskId;
+        private final byte[] content;
     }
 
     @RequiredArgsConstructor
