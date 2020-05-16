@@ -19,7 +19,7 @@ public class R2dbcAdapter {
     public Mono<Task> findById(long id) {
         return this.handler.withHandle(h -> {
             var sql = "SELECT id, title, description, CAST(status AS VARCHAR), CAST(type AS VARCHAR), CAST(coordinate AS VARCHAR), " +
-                "reward, assignee, due_date, updated_by, updated, created_by, created " +
+                "reward, assignee, due_date, updated, created_by, created " +
                 "FROM public.task WHERE id = $1";
             return h.createQuery(sql)
                 .bind("$1", id)
@@ -42,7 +42,7 @@ public class R2dbcAdapter {
     public Mono<Long> insert(CreateTaskRequest request) {
         return this.handler.withHandle(h -> {
             var sql = "INSERT INTO public.task (title, description, status, type, reward, due_date, coordinate, created_by) " +
-                "VALUES($1, $2, 'CREATED', $4, $5, $6, point($7), $8) RETURNING id";
+                "VALUES($1, $2, 'CREATED', $3::task_type, $4, $5, point($6), $7) RETURNING id";
             return request.bindOn(h.createQuery(sql))
                 .mapRow(r -> r.get("id", Long.class))
                 .next();
@@ -51,7 +51,7 @@ public class R2dbcAdapter {
 
     public Mono<Integer> updateStatus(UpdateStatusRequest request) {
         return this.handler.withHandle(h -> {
-            var sql = "UPDATE public.task SET status = $1 WHERE id = $2";
+            var sql = "UPDATE public.task SET status = $1::task_status WHERE id = $2";
             return request.bindOn(h.createUpdate(sql))
                 .execute()
                 .next();
@@ -60,9 +60,9 @@ public class R2dbcAdapter {
 
     public Mono<Integer> update(UpdateTaskRequest request) {
         return this.handler.withHandle(h -> {
-            var sql = "UPDATE public.task SET title = $1, description = $2, status = $3, coordinate = $4, type = $5, reward = $6, " +
-                "due_date = $7, updated = now()" +
-                "WHERE id = $8";
+            var sql = "UPDATE public.task SET title = $1, description = $2, type = $3::task_type, reward = $4, " +
+                "due_date = $5, coordinate = point($6), updated = now() " +
+                "WHERE id = $7";
             return request.bindOn(h.createUpdate(sql))
                 .execute()
                 .next();

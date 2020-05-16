@@ -57,9 +57,6 @@ public class RestController {
 
     @PutMapping("/task/{id}")
     public Mono<Void> editTask(@PathVariable(value = "id") Long id, @Valid @RequestBody Task task) {
-        if (!id.equals(task.id)) {
-            return Mono.error(new RuntimeException("Id in path and in the body don't match"));
-        }
         return Mono.just(new EditTaskRequest(task, id))
             .flatMap(editTaskOperation::process);
     }

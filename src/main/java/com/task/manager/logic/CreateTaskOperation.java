@@ -28,10 +28,10 @@ public class CreateTaskOperation {
         public Query bindOn(Query query) {
             bind(query, "$1", String.class, newTask.title);
             bind(query, "$2", String.class, newTask.description);
-            bind(query, "$3", String.class, newTask.coordinate.toString());
-            bind(query, "$4", String.class, newTask.type.toString());
-            bind(query, "$5", Long.class, newTask.reward);
-            bind(query, "$6", LocalDateTime.class, newTask.dueDate);
+            bind(query, "$3", String.class, newTask.type.toString());
+            bind(query, "$4", Long.class, newTask.reward);
+            bind(query, "$5", LocalDateTime.class, newTask.dueDate);
+            bind(query, "$6", String.class, newTask.coordinate.toString());
             bind(query, "$7", Long.class, newTask.createdBy);
             return query;
         }

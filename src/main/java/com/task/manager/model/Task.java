@@ -12,7 +12,7 @@ import java.util.Objects;
 import javax.validation.constraints.NotNull;
 
 @Builder
-@EqualsAndHashCode(exclude = {"updated", "created", "createdBy"})
+@EqualsAndHashCode(exclude = {"id", "updated", "created", "createdBy"})
 @RequiredArgsConstructor
 public class Task {
 
@@ -72,19 +72,20 @@ public class Task {
         if (this.equals(newTask)) {
             return Mono.empty();
         }
-        return new UpdateTaskRequest(newTask).asMono();
+        return new UpdateTaskRequest(newTask, this.id).asMono();
     }
 
     @RequiredArgsConstructor
+    @EqualsAndHashCode
     public static class Point {
 
         public final float longitude;
         public final float latitude;
 
         public static Point fromString(String s) {
-            s = s.replace("[()]", "");
+            s = s.replaceAll("[()]", "");
             float lo = Objects.requireNonNull(Float.valueOf(s.substring(0, s.indexOf(","))), "Null parsed as longitude");
-            float la = Objects.requireNonNull(Float.valueOf(s.substring(s.indexOf(","))), "Null parsed as latitude");
+            float la = Objects.requireNonNull(Float.valueOf(s.substring(s.indexOf(",") + 1)), "Null parsed as latitude");
             return new Point(lo, la);
         }
 

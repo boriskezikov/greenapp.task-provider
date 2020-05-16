@@ -53,8 +53,8 @@ public class EditTaskOperation {
         public final Long assignee;
         public final LocalDateTime dueDate;
 
-        public UpdateTaskRequest(Task newTask) {
-            this.id = newTask.id;
+        public UpdateTaskRequest(Task newTask, Long id) {
+            this.id = id;
             this.title = newTask.title;
             this.description = newTask.description;
             this.status = newTask.status;
@@ -70,15 +70,14 @@ public class EditTaskOperation {
         }
 
         public Update bindOn(Update query) {
-            return query
-                .bind("$1", this.title)
-                .bind("$2", this.description)
-                .bind("$3", this.status)
-                .bind("$4", this.coordinate.toString())
-                .bind("$5", this.type)
-                .bind("$6", this.reward)
-                .bind("$7", this.dueDate)
-                .bind("$8", this.id);
+            bind(query, "$1", String.class, this.title);
+            bind(query, "$2", String.class, this.description);
+            bind(query, "$3", String.class, this.type.toString());
+            bind(query, "$4", Long.class, this.reward);
+            bind(query, "$5", LocalDateTime.class, this.dueDate);
+            bind(query, "$6", String.class, this.coordinate.toString());
+            bind(query, "$7", Long.class, this.id);
+            return query;
         }
     }
 
