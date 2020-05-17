@@ -1,6 +1,17 @@
+#LOCAL
+
+#db:
+#  host: localhost
+#  port: 54320
+#  database: task_manager
+#  username: postgres
+#  password: postgres
+
+#HEROKU
+
 db:
-  host: localhost
-  port: 54320
-  database: task_manager
-  username: postgres
-  password: postgres
+  host: ec2-52-44-166-58.compute-1.amazonaws.com
+  port: 5432
+  database: d9gpt70d96ibeo
+  username: ivwpvmnbfnrity
+  password: 8b64f5b33535a1bd31f4872f4b7319c63543c6286399ad1183e88035abce8880
