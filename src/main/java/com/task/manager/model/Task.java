@@ -6,8 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import javax.validation.constraints.NotNull;
 
@@ -26,7 +24,6 @@ public class Task {
     public final Point coordinate;
     @NotNull
     public final Type type;
-    public final List<Attachment> attachment = new ArrayList<>(10);
     @NotNull
     public final Long reward;
     public final Long assignee;
@@ -62,11 +59,6 @@ public class Task {
             .reward(row.get("reward", Long.class))
             .dueDate(row.get("due_date", LocalDateTime.class))
             .build();
-    }
-
-    public Task attach(List<Attachment> attachments) {
-        this.attachment.addAll(attachments);
-        return this;
     }
 
     @RequiredArgsConstructor
