@@ -38,5 +38,7 @@ CREATE TABLE public.attachment
 (
     id      SERIAL PRIMARY KEY,
     task_id BIGINT REFERENCES public.task (id) ON DELETE CASCADE,
-    content BYTEA
+    content BYTEA,
+    type    VARCHAR,
+    length  BIGINT
 );

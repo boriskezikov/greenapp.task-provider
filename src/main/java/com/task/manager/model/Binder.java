@@ -5,7 +5,7 @@ import io.r2dbc.client.Update;
 
 import static java.util.Objects.isNull;
 
-public class Binder {
+public abstract class Binder {
 
     protected void bind(Update update, String identifier, Class<?> type, Object value) {
         if (isNull(value)) {

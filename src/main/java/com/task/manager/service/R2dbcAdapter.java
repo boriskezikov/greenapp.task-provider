@@ -1,10 +1,14 @@
 package com.task.manager.service;
 
+import com.task.manager.logic.AttachPhotosOperation.AttachPhotosRequest;
 import com.task.manager.logic.CreateTaskOperation.CreateTaskRequest;
 import com.task.manager.logic.EditTaskOperation.UpdateTaskRequest;
+import com.task.manager.logic.FindAttachmentsByIdOperation.FindAttachmentsByTaskIdRequest;
+import com.task.manager.logic.FindTaskByIdOperation.FindTaskByIdRequest;
 import com.task.manager.logic.FindTasksOperation.FindTasksRequest;
 import com.task.manager.logic.UpdateStatusOperation.UpdateStatusRequest;
 import com.task.manager.model.Task;
+import com.task.manager.model.Task.Attachment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -16,13 +20,12 @@ public class R2dbcAdapter {
 
     private final R2dbcHandler handler;
 
-    public Mono<Task> findById(long id) {
+    public Mono<Task> findById(FindTaskByIdRequest request) {
         return this.handler.withHandle(h -> {
             var sql = "SELECT id, title, description, CAST(status AS VARCHAR), CAST(type AS VARCHAR), CAST(coordinate AS VARCHAR), " +
                 "reward, assignee, due_date, updated, created_by, created " +
                 "FROM public.task WHERE id = $1";
-            return h.createQuery(sql)
-                .bind("$1", id)
+            return request.bindOn(h.createQuery(sql))
                 .mapRow(Task::fromGetByIdRow)
                 .next();
         });
@@ -39,10 +42,28 @@ public class R2dbcAdapter {
         });
     }
 
+    public Flux<Attachment> findAttachmentsByTaskId(FindAttachmentsByTaskIdRequest request) {
+        return this.handler.withHandleFlux(h -> {
+            var sql = "SELECT id, task_id, content, type, length FROM public.attachment WHERE task_id = $1";
+            return request.bindOn(h.createQuery(sql))
+                .mapRow(Attachment::fromRow);
+        });
+    }
+
     public Mono<Long> insert(CreateTaskRequest request) {
         return this.handler.withHandle(h -> {
             var sql = "INSERT INTO public.task (title, description, status, type, reward, due_date, coordinate, created_by) " +
                 "VALUES($1, $2, 'CREATED', $3::task_type, $4, $5, point($6), $7) RETURNING id";
+            return request.bindOn(h.createQuery(sql))
+                .mapRow(r -> r.get("id", Long.class))
+                .next();
+        });
+    }
+
+    public Mono<Long> attach(AttachPhotosRequest request) {
+        return this.handler.withHandle(h -> {
+            var sql = "INSERT INTO public.attachment (task_id, type, length, content) " +
+                "VALUES($1, $2, $3, $4) RETURNING id";
             return request.bindOn(h.createQuery(sql))
                 .mapRow(r -> r.get("id", Long.class))
                 .next();

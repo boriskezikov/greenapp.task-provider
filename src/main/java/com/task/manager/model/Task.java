@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.validation.constraints.NotNull;
@@ -25,7 +26,7 @@ public class Task {
     public final Point coordinate;
     @NotNull
     public final Type type;
-    public final List<Photo> photos;
+    public final List<Attachment> attachment = new ArrayList<>(10);
     @NotNull
     public final Long reward;
     public final Long assignee;
@@ -63,12 +64,31 @@ public class Task {
             .build();
     }
 
-    @RequiredArgsConstructor
-    public static class Photo {
+    public Task attach(List<Attachment> attachments) {
+        this.attachment.addAll(attachments);
+        return this;
+    }
 
-        private final Long id;
-        private final Long taskId;
-        private final byte[] content;
+    @RequiredArgsConstructor
+    @Builder
+    @EqualsAndHashCode(of = "content")
+    public static class Attachment {
+
+        public final Long id;
+        public final Long taskId;
+        public final Long contentLength;
+        public final String contentType;
+        public final byte[] content;
+
+        public static Attachment fromRow(Row row) {
+            return Attachment.builder()
+                .id(row.get("id", Long.class))
+                .taskId(row.get("task_id", Long.class))
+                .contentLength(row.get("length", Long.class))
+                .contentType(row.get("type", String.class))
+                .content(row.get("content", byte[].class))
+                .build();
+        }
     }
 
     @RequiredArgsConstructor

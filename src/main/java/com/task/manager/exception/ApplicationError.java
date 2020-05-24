@@ -4,13 +4,7 @@ import reactor.core.publisher.Mono;
 
 public enum ApplicationError {
 
-    DOCUMENT_NOT_FOUND_BY_ID(400, "Document not found error"),
-    PROPERTY_DOESNT_EXIST(400, "Property doesn't exist"),
-    DOCUMENT_TYPE_DOESNT_EXIST(400, "Document type doesn't exist"),
-    DOCUMENT_CONTENT_DOESNT_EXIST(400, "Document content doesn't exist"),
-    BAD_REQUEST(400, "Bad request"),
-    LINK_DOESNT_EXIST(400, "Requested link to document doesn't exist"),
-    INTERNAL_SERVER_ERROR(500, "Internal server error");
+    TASK_NOT_FOUND_BY_ID(400, "Task not found error");
 
     public final int status;
     public final String description;

@@ -4,13 +4,7 @@ import reactor.core.publisher.Mono;
 
 public enum ValidationError {
 
-    CANNOT_PARSE_VALUE(400, "Error parsing value"),
-    NO_SUCH_PROPERTIES_ATTACHED(400, "No such properties attached"),
-    NO_SUCH_PROPERTIES_EXIST(400, "No such properties exist"),
-    UNCERTAIN_PROPERTY_VALUE_ERROR(400, "Uncertain property value"),
-    CANNOT_PARSE_FIND_REQUEST(400, "Error parsing find request"),
-    UNSUPPORTED_MEDIA_TYPE(415, "Unsupported media type"),
-    CANNOT_PARSE_APPEND_REQUEST(400, "Error parsing append request");
+    INVALID_ATTACH_REQUEST(400, "Error parsing attach request");
 
     public final int status;
     public final String description;
