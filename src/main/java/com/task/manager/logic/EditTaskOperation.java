@@ -1,5 +1,6 @@
 package com.task.manager.logic;
 
+import com.task.manager.logic.FindTaskByIdOperation.FindTaskByIdRequest;
 import com.task.manager.model.Binder;
 import com.task.manager.model.Status;
 import com.task.manager.model.Task;
@@ -19,7 +20,7 @@ public class EditTaskOperation {
     private final R2dbcAdapter r2dbcAdapter;
 
     public Mono<Void> process(EditTaskRequest request) {
-        var oldTask = r2dbcAdapter.findById(request.taskId)
+        var oldTask = r2dbcAdapter.findById(new FindTaskByIdRequest(request.taskId))
             .switchIfEmpty(Mono.error(new RuntimeException("No such task exist with id = " + request.taskId)));
         return request.asMono()
             .zipWith(oldTask)
@@ -86,6 +87,4 @@ public class EditTaskOperation {
             return query;
         }
     }
-
-
 }

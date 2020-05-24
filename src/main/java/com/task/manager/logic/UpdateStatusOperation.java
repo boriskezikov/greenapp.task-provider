@@ -1,5 +1,6 @@
 package com.task.manager.logic;
 
+import com.task.manager.logic.FindTaskByIdOperation.FindTaskByIdRequest;
 import com.task.manager.model.Status;
 import com.task.manager.service.R2dbcAdapter;
 import io.r2dbc.client.Update;
@@ -14,7 +15,7 @@ public class UpdateStatusOperation {
     public final R2dbcAdapter r2dbcAdapter;
 
     public Mono<Void> process(UpdateStatusRequest request) {
-        var oldTask = this.r2dbcAdapter.findById(request.taskId)
+        var oldTask = this.r2dbcAdapter.findById(new FindTaskByIdRequest(request.taskId))
             .map(t -> t.status)
             .switchIfEmpty(Mono.error(new RuntimeException("No such task exist with id = " + request.taskId)));
         return request.asMono()
