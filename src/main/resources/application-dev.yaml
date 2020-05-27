@@ -1,0 +1,11 @@
+db:
+  host: localhost
+  port: 54320
+  database: task_manager
+  username: postgres
+  password: postgres
+spring:
+  application:
+    name: task-provider
+server:
+  port: 8199

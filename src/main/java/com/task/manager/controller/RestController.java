@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 
 @org.springframework.web.bind.annotation.RestController
-@RequestMapping("/task-provider/")
+@RequestMapping("task-provider/")
 @RequiredArgsConstructor
 public class RestController {
 
