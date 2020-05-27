@@ -39,8 +39,8 @@ public class HttpCodeException extends RuntimeException {
 
     public String apiResponse() {
         return "{\n" +
-            "   \"errorMessage\": \"" + body + "\"\n" +
-            '}';
+                "   \"errorMessage\": \"" + body + "\"\n" +
+                '}';
     }
 
     @Override

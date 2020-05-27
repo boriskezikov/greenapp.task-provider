@@ -17,7 +17,7 @@ public class FindAttachmentsByIdOperation {
 
     public Flux<Attachment> process(FindAttachmentsByTaskIdRequest request) {
         return r2dbcAdapter.findAttachmentsByTaskId(request)
-            .switchIfEmpty(TASK_NOT_FOUND_BY_ID.exceptionMono("No such task exist with id = " + request.taskId));
+                .switchIfEmpty(TASK_NOT_FOUND_BY_ID.exceptionMono("No such task exist with id = " + request.taskId));
     }
 
     @RequiredArgsConstructor

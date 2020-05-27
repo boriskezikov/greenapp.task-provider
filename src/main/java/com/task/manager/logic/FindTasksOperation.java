@@ -74,10 +74,10 @@ public class FindTasksOperation {
                 return "";
             }
             return " ORDER BY "
-                .concat(sort.stream()
+                    .concat(sort.stream()
                             .map(Enum::toString)
                             .collect(joining(", "))
-                );
+                    );
         }
     }
 }

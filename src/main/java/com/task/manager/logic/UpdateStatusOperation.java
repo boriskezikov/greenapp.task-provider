@@ -16,17 +16,17 @@ public class UpdateStatusOperation {
 
     public Mono<Void> process(UpdateStatusRequest request) {
         var oldTask = this.r2dbcAdapter.findById(new FindTaskByIdRequest(request.taskId))
-            .map(t -> t.status)
-            .switchIfEmpty(Mono.error(new RuntimeException("No such task exist with id = " + request.taskId)));
+                .map(t -> t.status)
+                .switchIfEmpty(Mono.error(new RuntimeException("No such task exist with id = " + request.taskId)));
         return request.asMono()
-            .map(r -> r.status)
-            .zipWith(oldTask)
-            .map(t -> {
-                t.getT1().validateOver(t.getT2());
-                return request;
-            })
-            .flatMap(r2dbcAdapter::updateStatus)
-            .then();
+                .map(r -> r.status)
+                .zipWith(oldTask)
+                .map(t -> {
+                    t.getT1().validateOver(t.getT2());
+                    return request;
+                })
+                .flatMap(r2dbcAdapter::updateStatus)
+                .then();
     }
 
     @RequiredArgsConstructor
@@ -41,8 +41,8 @@ public class UpdateStatusOperation {
 
         public Update bindOn(Update query) {
             return query
-                .bind("$1", this.status)
-                .bind("$2", this.taskId);
+                    .bind("$1", this.status)
+                    .bind("$2", this.taskId);
         }
     }
 }

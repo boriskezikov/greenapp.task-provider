@@ -34,31 +34,31 @@ public class Task {
 
     public static Task fromGetByIdRow(Row row) {
         return Task.builder()
-            .id(row.get("id", Long.class))
-            .title(row.get("title", String.class))
-            .description(row.get("description", String.class))
-            .status(Status.valueOf(row.get("status", String.class)))
-            .coordinate(Point.fromString(row.get("coordinate", String.class)))
-            .type(Type.valueOf(row.get("type", String.class)))
-            .reward(row.get("reward", Long.class))
-            .assignee(row.get("assignee", Long.class))
-            .dueDate(row.get("due_date", LocalDateTime.class))
-            .updated(row.get("updated", LocalDateTime.class))
-            .createdBy(row.get("created_by", String.class))
-            .created(row.get("created", LocalDateTime.class))
-            .build();
+                .id(row.get("id", Long.class))
+                .title(row.get("title", String.class))
+                .description(row.get("description", String.class))
+                .status(Status.valueOf(row.get("status", String.class)))
+                .coordinate(Point.fromString(row.get("coordinate", String.class)))
+                .type(Type.valueOf(row.get("type", String.class)))
+                .reward(row.get("reward", Long.class))
+                .assignee(row.get("assignee", Long.class))
+                .dueDate(row.get("due_date", LocalDateTime.class))
+                .updated(row.get("updated", LocalDateTime.class))
+                .createdBy(row.get("created_by", String.class))
+                .created(row.get("created", LocalDateTime.class))
+                .build();
     }
 
     public static Task fromFindRow(Row row) {
         return Task.builder()
-            .id(row.get("id", Long.class))
-            .title(row.get("title", String.class))
-            .status(Status.valueOf(row.get("status", String.class)))
-            .coordinate(Point.fromString(row.get("coordinate", String.class)))
-            .type(Type.valueOf(row.get("type", String.class)))
-            .reward(row.get("reward", Long.class))
-            .dueDate(row.get("due_date", LocalDateTime.class))
-            .build();
+                .id(row.get("id", Long.class))
+                .title(row.get("title", String.class))
+                .status(Status.valueOf(row.get("status", String.class)))
+                .coordinate(Point.fromString(row.get("coordinate", String.class)))
+                .type(Type.valueOf(row.get("type", String.class)))
+                .reward(row.get("reward", Long.class))
+                .dueDate(row.get("due_date", LocalDateTime.class))
+                .build();
     }
 
     @RequiredArgsConstructor
@@ -74,12 +74,12 @@ public class Task {
 
         public static Attachment fromRow(Row row) {
             return Attachment.builder()
-                .id(row.get("id", Long.class))
-                .taskId(row.get("task_id", Long.class))
-                .contentLength(row.get("length", Long.class))
-                .contentType(row.get("type", String.class))
-                .content(row.get("content", byte[].class))
-                .build();
+                    .id(row.get("id", Long.class))
+                    .taskId(row.get("task_id", Long.class))
+                    .contentLength(row.get("length", Long.class))
+                    .contentType(row.get("type", String.class))
+                    .content(row.get("content", byte[].class))
+                    .build();
         }
     }
 

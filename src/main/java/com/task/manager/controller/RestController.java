@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 
 @org.springframework.web.bind.annotation.RestController
-@RequestMapping("/")
+@RequestMapping("/task-provider/")
 @RequiredArgsConstructor
 public class RestController {
 
@@ -49,57 +49,62 @@ public class RestController {
     @GetMapping("/tasks")
     public Flux<Task> findTasks(@Valid @RequestBody FindTasksRequest request) {
         return Mono.just(request)
-            .flatMapMany(findTasksOperation::process);
+                .flatMapMany(findTasksOperation::process);
     }
 
     @GetMapping("/task/{id}")
     public Mono<Task> getTaskById(@PathVariable(value = "id") Long taskId) {
         return Mono.just(new FindTaskByIdRequest(taskId))
-            .flatMap(findTaskByIdOperation::process);
+                .flatMap(findTaskByIdOperation::process);
     }
 
     @PostMapping("/task")
     public Mono<Long> createTask(@Valid @RequestBody Task task) {
         return Mono.just(new CreateTaskRequest(task))
-            .flatMap(createTaskOperation::process);
+                .flatMap(createTaskOperation::process);
     }
 
     @PutMapping("/task/{id}")
     public Mono<Void> editTask(@PathVariable(value = "id") Long id, @Valid @RequestBody Task task) {
         return Mono.just(new EditTaskRequest(task, id))
-            .flatMap(editTaskOperation::process);
+                .flatMap(editTaskOperation::process);
     }
 
     @PatchMapping("/task/{id}")
     public Mono<Void> updateStatus(@PathVariable(value = "id") Long id, @RequestParam("status") Status status) {
         return Mono.just(new UpdateStatusRequest(id, status))
-            .flatMap(updateStatusOperation::process);
+                .flatMap(updateStatusOperation::process);
     }
 
     @PostMapping(value = "/task/{id}/attachment", consumes = {
-        MediaType.IMAGE_JPEG_VALUE,
-        MediaType.IMAGE_PNG_VALUE,
-        MediaType.APPLICATION_OCTET_STREAM_VALUE
+            MediaType.IMAGE_JPEG_VALUE,
+            MediaType.IMAGE_PNG_VALUE,
+            MediaType.APPLICATION_OCTET_STREAM_VALUE
     })
     public Mono<Void> attachPhotos(
-        @RequestHeader("Content-Type") String contentType,
-        @RequestHeader("Content-Length") Long length,
-        @PathVariable(value = "id") Long id,
-        @RequestBody byte[] content) {
+            @RequestHeader("Content-Type") String contentType,
+            @RequestHeader("Content-Length") Long length,
+            @PathVariable(value = "id") Long id,
+            @RequestBody byte[] content) {
         return Mono.just(new AttachPhotosRequest(id, contentType, length, content))
-            .flatMap(attachPhotosOperation::process);
+                .flatMap(attachPhotosOperation::process);
     }
 
     @GetMapping(value = "/task/{id}/attachment", produces = {
-        MediaType.IMAGE_JPEG_VALUE,
-        MediaType.IMAGE_PNG_VALUE,
-        MediaType.APPLICATION_OCTET_STREAM_VALUE
+            MediaType.IMAGE_JPEG_VALUE,
+            MediaType.IMAGE_PNG_VALUE,
+            MediaType.APPLICATION_OCTET_STREAM_VALUE
     })
-    public @ResponseBody()
-    Flux<byte[]> findAttachments(@PathVariable(value = "id") Long id) {
+    @ResponseBody
+    public Flux<byte[]> findAttachments(@PathVariable(value = "id") Long id) {
         return Mono.just(new FindAttachmentsByTaskIdRequest(id))
-            .flatMapMany(findAttachmentsByIdOperation::process)
-            .map(a -> a.content);
+                .flatMapMany(findAttachmentsByIdOperation::process)
+                .map(a -> a.content);
+    }
+
+    @GetMapping("/test")
+    public String test(){
+        return "Hello task manager";
     }
 }
 

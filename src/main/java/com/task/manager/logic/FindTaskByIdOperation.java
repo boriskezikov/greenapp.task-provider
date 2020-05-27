@@ -17,7 +17,7 @@ public class FindTaskByIdOperation {
 
     public Mono<Task> process(FindTaskByIdRequest request) {
         return r2dbcAdapter.findById(request)
-            .switchIfEmpty(TASK_NOT_FOUND_BY_ID.exceptionMono("No such task exist with id = " + request.taskId));
+                .switchIfEmpty(TASK_NOT_FOUND_BY_ID.exceptionMono("No such task exist with id = " + request.taskId));
     }
 
     @RequiredArgsConstructor

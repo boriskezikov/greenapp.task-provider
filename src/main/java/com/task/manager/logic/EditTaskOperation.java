@@ -21,12 +21,12 @@ public class EditTaskOperation {
 
     public Mono<Void> process(EditTaskRequest request) {
         var oldTask = r2dbcAdapter.findById(new FindTaskByIdRequest(request.taskId))
-            .switchIfEmpty(Mono.error(new RuntimeException("No such task exist with id = " + request.taskId)));
+                .switchIfEmpty(Mono.error(new RuntimeException("No such task exist with id = " + request.taskId)));
         return request.asMono()
-            .zipWith(oldTask)
-            .flatMap(t -> t.getT1().updateRequest(t.getT2()))
-            .flatMap(r2dbcAdapter::update)
-            .then();
+                .zipWith(oldTask)
+                .flatMap(t -> t.getT1().updateRequest(t.getT2()))
+                .flatMap(r2dbcAdapter::update)
+                .then();
     }
 
     @RequiredArgsConstructor
