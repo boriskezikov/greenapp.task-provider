@@ -1,11 +1,12 @@
 package com.task.manager.configuration;
 
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
+import reactor.kafka.sender.KafkaSender;
+import reactor.kafka.sender.SenderOptions;
 
 import java.util.Map;
 
@@ -13,12 +14,11 @@ import java.util.Map;
 public class KafkaConfiguration {
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> kafkaProducerFactory) {
-        return new KafkaTemplate<>(kafkaProducerFactory);
-    }
-
-    @Bean
-    public ProducerFactory<String, String> kafkaProducerFactory(@Value("kafka") Map<String, Object> properties) {
-        return new DefaultKafkaProducerFactory<>(properties);
+    @RefreshScope
+    public KafkaSender<String, String> kafkaSender(@Value("kafka") Map<String, Object> properties) {
+        var consumerOptions = SenderOptions.<String, String>create(properties)
+            .withValueSerializer(new StringSerializer())
+            .withKeySerializer(new StringSerializer());
+        return KafkaSender.create(consumerOptions);
     }
 }

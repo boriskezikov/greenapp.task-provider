@@ -4,7 +4,8 @@ import reactor.core.publisher.Mono;
 
 public enum InvocationError {
 
-    POSTGRES_INVOCATION_ERROR(500, "Error invoking Postgres");
+    POSTGRES_INVOCATION_ERROR(500, "Error invoking Postgres"),
+    KAFKA_INVOCATION_ERROR(500, "Error invoking Kafka");
 
     public final int status;
     public final String description;
