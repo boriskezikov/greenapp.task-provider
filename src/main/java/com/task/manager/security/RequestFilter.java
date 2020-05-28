@@ -25,6 +25,7 @@ public class RequestFilter implements Filter {
                          ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
 
+        request.get
         HttpServletRequest req = (HttpServletRequest) request;
         var authHeader = req.getHeader("X-GREEN-APP-ID");
 
