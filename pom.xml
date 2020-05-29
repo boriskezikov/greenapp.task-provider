@@ -13,27 +13,11 @@
   <groupId>com.greenapp</groupId>
   <artifactId>task-manager</artifactId>
   <version>1.0.0</version>
-  <name>task-manager</name>
+  <name>task-provider</name>
 
   <properties>
     <java.version>14</java.version>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>spring-milestones</id>
-      <name>Spring Milestones</name>
-      <url>https://repo.spring.io/milestone</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>alfresco</id>
-      <name>Alfresco Nexus Repository</name>
-      <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
-    </repository>
-  </repositories>
 
   <dependencies>
 
@@ -132,6 +116,22 @@
     </dependency>
 
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>spring-milestones</id>
+      <name>Spring Milestones</name>
+      <url>https://repo.spring.io/milestone</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>alfresco</id>
+      <name>Alfresco Nexus Repository</name>
+      <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
+    </repository>
+  </repositories>
 
   <dependencyManagement>
     <dependencies>
