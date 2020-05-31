@@ -22,6 +22,7 @@ public class KafkaAdapter {
     private final static Logger log = LoggerFactory.getLogger(KafkaAdapter.class);
 
     private final KafkaProducer producer;
+    private final static String topic = "u4t0gea8-task-event";
 
     public Flux<Void> sendEvent(Event event) {
         var record = senderRecord(event);
@@ -37,15 +38,16 @@ public class KafkaAdapter {
     }
 
     private Mono<SenderRecord<String, String, Void>> senderRecord(Event event) {
-        var record = new ProducerRecord<String, String>(event.topic, event.value);
+        var record = new ProducerRecord<String, String>(topic, event.value);
         return Mono.just(SenderRecord.create(record, null));
     }
 
     @RequiredArgsConstructor
     public static class Event {
 
-        public final String topic;
         public final String value;
+        public final Long taskId;
+        public final Long userId;
     }
 }
 

@@ -6,6 +6,8 @@ import com.task.provider.model.Binder;
 import com.task.provider.model.Task;
 import com.task.provider.service.dao.R2dbcAdapter;
 import com.task.provider.service.dao.R2dbcHandler;
+import com.task.provider.service.kafka.KafkaAdapter;
+import com.task.provider.service.kafka.KafkaAdapter.Event;
 import io.r2dbc.client.Update;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,7 @@ public class EditTaskOperation {
 
     private final R2dbcAdapter r2dbcAdapter;
     private final R2dbcHandler r2dbcHandler;
+    private final KafkaAdapter kafkaAdapter;
 
     public Mono<Void> process(EditTaskRequest request) {
         var id = request.newTask.id;
@@ -38,7 +41,8 @@ public class EditTaskOperation {
                              Mono.empty();
                 var attach = Flux.fromIterable(request.attachPhotosRequest)
                     .flatMap(a -> r2dbcAdapter.attach(h, a));
-                return Mono.when(updateTask, detach, attach);
+                var sendEvent = kafkaAdapter.sendEvent(new Event("TaskCreated", id, request.newTask.createdBy));
+                return Mono.when(updateTask, detach, attach, sendEvent);
             }));
     }
 

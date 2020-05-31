@@ -23,22 +23,22 @@ public class Task {
     public final Long assignee;
     public final LocalDateTime dueDate;
     public final LocalDateTime updated;
-    public final String createdBy;
+    public final Long createdBy;
     public final LocalDateTime created;
 
     public static Task fromGetByIdRow(Row row) {
         return Task.builder()
-                .id(row.get("id", Long.class))
-                .title(row.get("title", String.class))
-                .description(row.get("description", String.class))
-                .status(Status.valueOf(row.get("status", String.class)))
-                .coordinate(Point.fromString(row.get("coordinate", String.class)))
-                .type(Type.valueOf(row.get("type", String.class)))
-                .reward(row.get("reward", Long.class))
-                .assignee(row.get("assignee", Long.class))
-                .dueDate(row.get("due_date", LocalDateTime.class))
-                .updated(row.get("updated", LocalDateTime.class))
-                .createdBy(row.get("created_by", String.class))
+            .id(row.get("id", Long.class))
+            .title(row.get("title", String.class))
+            .description(row.get("description", String.class))
+            .status(Status.valueOf(row.get("status", String.class)))
+            .coordinate(Point.fromString(row.get("coordinate", String.class)))
+            .type(Type.valueOf(row.get("type", String.class)))
+            .reward(row.get("reward", Long.class))
+            .assignee(row.get("assignee", Long.class))
+            .dueDate(row.get("due_date", LocalDateTime.class))
+            .updated(row.get("updated", LocalDateTime.class))
+            .createdBy(row.get("created_by", Long.class))
                 .created(row.get("created", LocalDateTime.class))
                 .build();
     }

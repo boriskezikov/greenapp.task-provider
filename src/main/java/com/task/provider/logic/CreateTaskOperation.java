@@ -4,6 +4,8 @@ import com.task.provider.model.Binder;
 import com.task.provider.model.Task;
 import com.task.provider.service.dao.R2dbcAdapter;
 import com.task.provider.service.dao.R2dbcHandler;
+import com.task.provider.service.kafka.KafkaAdapter;
+import com.task.provider.service.kafka.KafkaAdapter.Event;
 import io.r2dbc.client.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -23,6 +25,7 @@ public class CreateTaskOperation {
 
     private final R2dbcAdapter r2dbcAdapter;
     private final R2dbcHandler r2dbcHandler;
+    private final KafkaAdapter kafkaAdapter;
 
     public Mono<Void> process(CreateTaskRequest request) {
         return r2dbcHandler.inTxMono(
@@ -34,6 +37,7 @@ public class CreateTaskOperation {
                     })
                     .flatMap(AttachPhotosRequest::validate)
                     .flatMap(r -> r2dbcAdapter.attach(h, r))
+                    .flatMap(r -> kafkaAdapter.sendEvent(new Event("TaskCreated", r, request.newTask.createdBy)))
                     .then()
                 )
         );

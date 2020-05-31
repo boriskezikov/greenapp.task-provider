@@ -30,7 +30,7 @@ CREATE TABLE public.task
     type        public.task_type   NOT NULL,
     due_date    timestamp,
     updated     timestamp,
-    created_by  VARCHAR            NOT NULL,
+    created_by  BIGINT             NOT NULL,
     created     timestamp          NOT NULL DEFAULT now()
 );
 
