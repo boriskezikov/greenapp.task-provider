@@ -21,16 +21,16 @@ CREATE TYPE task_type AS ENUM (
 CREATE TABLE public.task
 (
     id          SERIAL PRIMARY KEY,
-    title       varchar,
-    description varchar,
+    title       VARCHAR,
+    description VARCHAR,
     status      public.task_status NOT NULL,
     coordinate  point              NOT NULL,
     reward      BIGINT             NOT NULL,
-    assignee    BIGINT             NOT NULL,
+    assignee    BIGINT,
     type        public.task_type   NOT NULL,
     due_date    timestamp,
     updated     timestamp,
-    created_by  varchar            NOT NULL,
+    created_by  VARCHAR            NOT NULL,
     created     timestamp          NOT NULL DEFAULT now()
 );
 

@@ -1,8 +1,7 @@
 package com.task.provider.controller;
 
-import com.task.provider.logic.AttachPhotosOperation;
-import com.task.provider.logic.AttachPhotosOperation.AttachPhotosRequest;
 import com.task.provider.logic.CreateTaskOperation;
+import com.task.provider.logic.CreateTaskOperation.AttachPhotosRequest;
 import com.task.provider.logic.CreateTaskOperation.CreateTaskRequest;
 import com.task.provider.logic.EditTaskOperation;
 import com.task.provider.logic.EditTaskOperation.EditTaskRequest;
@@ -24,13 +23,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.util.List;
 import javax.validation.Valid;
 
 @org.springframework.web.bind.annotation.RestController
@@ -44,66 +46,79 @@ public class RestController {
     private final FindAttachmentsByIdOperation findAttachmentsByIdOperation;
     private final EditTaskOperation editTaskOperation;
     private final UpdateStatusOperation updateStatusOperation;
-    private final AttachPhotosOperation attachPhotosOperation;
 
     @GetMapping("/tasks")
     public Flux<Task> findTasks(@Valid @RequestBody FindTasksRequest request) {
         return Mono.just(request)
-                .flatMapMany(findTasksOperation::process);
+            .flatMapMany(findTasksOperation::process);
     }
 
     @GetMapping("/task/{id}")
     public Mono<Task> getTaskById(@PathVariable(value = "id") Long taskId) {
         return Mono.just(new FindTaskByIdRequest(taskId))
-                .flatMap(findTaskByIdOperation::process);
+            .flatMap(findTaskByIdOperation::process);
     }
 
-    @PostMapping("/task")
-    public Mono<Long> createTask(@Valid @RequestBody Task task) {
-        return Mono.just(new CreateTaskRequest(task))
-                .flatMap(createTaskOperation::process);
+    @PostMapping(value = "/task",
+        consumes = {
+            MediaType.MULTIPART_FORM_DATA_VALUE
+        })
+    public Mono<Void> createTask(@RequestPart("task") Task task,
+                                 @RequestPart(value = "attachment", required = false) List<MultipartFile> attachment) {
+        var request = Flux.fromIterable(attachment)
+            .flatMap(a -> {
+                try {
+                    return Mono.just(new AttachPhotosRequest(a.getContentType(), a.getSize(), a.getBytes()));
+                } catch (IOException e) {
+                    return Mono.error(e);
+                }
+            })
+            .collectList();
+        return request.map(a -> new CreateTaskRequest(task, a))
+            .flatMap(createTaskOperation::process);
     }
 
-    @PutMapping("/task/{id}")
-    public Mono<Void> editTask(@PathVariable(value = "id") Long id, @Valid @RequestBody Task task) {
-        return Mono.just(new EditTaskRequest(task, id))
-                .flatMap(editTaskOperation::process);
+    @PutMapping(value = "/task", params = "detach")
+    public Mono<Void> editTask(@RequestPart("task") Task task,
+                               @RequestPart(value = "attachment", required = false) List<MultipartFile> attachment,
+                               @RequestParam(value = "detach") boolean detach) {
+        var request = Flux.fromIterable(attachment)
+            .flatMap(a -> {
+                try {
+                    return Mono.just(new AttachPhotosRequest(a.getContentType(), a.getSize(), a.getBytes()))
+                        .map(r -> {
+                            r.setTaskId(task.id);
+                            return r;
+                        });
+                } catch (IOException e) {
+                    return Mono.error(e);
+                }
+            })
+            .collectList();
+        return request.map(a -> new EditTaskRequest(task, a, detach))
+            .flatMap(editTaskOperation::process);
     }
 
     @PatchMapping("/task/{id}")
     public Mono<Void> updateStatus(@PathVariable(value = "id") Long id, @RequestParam("status") Status status) {
         return Mono.just(new UpdateStatusRequest(id, status))
-                .flatMap(updateStatusOperation::process);
-    }
-
-    @PostMapping(value = "/task/{id}/attachment", consumes = {
-            MediaType.IMAGE_JPEG_VALUE,
-            MediaType.IMAGE_PNG_VALUE,
-            MediaType.APPLICATION_OCTET_STREAM_VALUE
-    })
-    public Mono<Void> attachPhotos(
-            @RequestHeader("Content-Type") String contentType,
-            @RequestHeader("Content-Length") Long length,
-            @PathVariable(value = "id") Long id,
-            @RequestBody byte[] content) {
-        return Mono.just(new AttachPhotosRequest(id, contentType, length, content))
-                .flatMap(attachPhotosOperation::process);
+            .flatMap(updateStatusOperation::process);
     }
 
     @GetMapping(value = "/task/{id}/attachment", produces = {
-            MediaType.IMAGE_JPEG_VALUE,
-            MediaType.IMAGE_PNG_VALUE,
-            MediaType.APPLICATION_OCTET_STREAM_VALUE
+        MediaType.IMAGE_JPEG_VALUE,
+        MediaType.IMAGE_PNG_VALUE,
+        MediaType.APPLICATION_OCTET_STREAM_VALUE
     })
     @ResponseBody
     public Flux<byte[]> findAttachments(@PathVariable(value = "id") Long id) {
         return Mono.just(new FindAttachmentsByTaskIdRequest(id))
-                .flatMapMany(findAttachmentsByIdOperation::process)
-                .map(a -> a.content);
+            .flatMapMany(findAttachmentsByIdOperation::process)
+            .map(a -> a.content);
     }
 
     @GetMapping("/test")
-    public String test(){
+    public String test() {
         return "Hello task manager";
     }
 }

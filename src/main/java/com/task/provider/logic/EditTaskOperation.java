@@ -1,39 +1,53 @@
 package com.task.provider.logic;
 
+import com.task.provider.logic.CreateTaskOperation.AttachPhotosRequest;
 import com.task.provider.logic.FindTaskByIdOperation.FindTaskByIdRequest;
 import com.task.provider.model.Binder;
-import com.task.provider.model.Status;
 import com.task.provider.model.Task;
-import com.task.provider.model.Type;
 import com.task.provider.service.dao.R2dbcAdapter;
+import com.task.provider.service.dao.R2dbcHandler;
 import io.r2dbc.client.Update;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import static com.task.provider.exception.ApplicationError.TASK_NOT_FOUND_BY_ID;
 
 @Component
 @RequiredArgsConstructor
 public class EditTaskOperation {
 
     private final R2dbcAdapter r2dbcAdapter;
+    private final R2dbcHandler r2dbcHandler;
 
     public Mono<Void> process(EditTaskRequest request) {
-        var oldTask = r2dbcAdapter.findById(new FindTaskByIdRequest(request.taskId))
-                .switchIfEmpty(Mono.error(new RuntimeException("No such task exist with id = " + request.taskId)));
+        var id = request.newTask.id;
+        var oldTask = r2dbcAdapter.findById(new FindTaskByIdRequest(id))
+            .switchIfEmpty(TASK_NOT_FOUND_BY_ID.exceptionMono("No such task exist with id = " + id));
         return request.asMono()
-                .zipWith(oldTask)
-                .flatMap(t -> t.getT1().updateRequest(t.getT2()))
-                .flatMap(r2dbcAdapter::update)
-                .then();
+            .zipWith(oldTask)
+            .flatMap(t -> t.getT1().updateRequest(t.getT2()))
+            .flatMap(r -> r2dbcHandler.inTxMono(h -> {
+                var updateTask = r2dbcAdapter.update(h, r);
+                var detach = request.detach ?
+                             r2dbcAdapter.detach(h, id) :
+                             Mono.empty();
+                var attach = Flux.fromIterable(request.attachPhotosRequest)
+                    .flatMap(a -> r2dbcAdapter.attach(h, a));
+                return Mono.when(updateTask, detach, attach);
+            }));
     }
 
     @RequiredArgsConstructor
     public static class EditTaskRequest {
 
         public final Task newTask;
-        public final Long taskId;
+        public final List<AttachPhotosRequest> attachPhotosRequest;
+        public final boolean detach;
 
         public Mono<EditTaskRequest> asMono() {
             return Mono.just(this);
@@ -43,47 +57,27 @@ public class EditTaskOperation {
             if (oldTask.equals(this.newTask)) {
                 return Mono.empty();
             }
-            return new UpdateTaskRequest(newTask, oldTask.id).asMono();
+            return new UpdateTaskRequest(newTask).asMono();
         }
     }
 
+    @RequiredArgsConstructor
     public static class UpdateTaskRequest extends Binder {
 
-        public final Long id;
-        public final String title;
-        public final String description;
-        public final Status status;
-        public final Task.Point coordinate;
-        public final Type type;
-        //public final List<Byte[]> photo;
-        public final Long reward;
-        public final Long assignee;
-        public final LocalDateTime dueDate;
-
-        public UpdateTaskRequest(Task newTask, Long id) {
-            this.id = id;
-            this.title = newTask.title;
-            this.description = newTask.description;
-            this.status = newTask.status;
-            this.coordinate = newTask.coordinate;
-            this.type = newTask.type;
-            this.reward = newTask.reward;
-            this.assignee = newTask.assignee;
-            this.dueDate = newTask.dueDate;
-        }
+        public final Task newTask;
 
         public Mono<UpdateTaskRequest> asMono() {
             return Mono.just(this);
         }
 
         public Update bindOn(Update query) {
-            bind(query, "$1", String.class, this.title);
-            bind(query, "$2", String.class, this.description);
-            bind(query, "$3", String.class, this.type.toString());
-            bind(query, "$4", Long.class, this.reward);
-            bind(query, "$5", LocalDateTime.class, this.dueDate);
-            bind(query, "$6", String.class, this.coordinate.toString());
-            bind(query, "$7", Long.class, this.id);
+            bind(query, "$1", String.class, newTask.title);
+            bind(query, "$2", String.class, newTask.description);
+            bind(query, "$3", String.class, newTask.type.toString());
+            bind(query, "$4", Long.class, newTask.reward);
+            bind(query, "$5", LocalDateTime.class, newTask.dueDate);
+            bind(query, "$6", String.class, newTask.coordinate.toString());
+            bind(query, "$7", Long.class, newTask.id);
             return query;
         }
     }

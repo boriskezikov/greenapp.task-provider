@@ -7,24 +7,18 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import javax.validation.constraints.NotNull;
 
 @Builder
 @EqualsAndHashCode(exclude = {"id", "updated", "created", "createdBy"})
 @RequiredArgsConstructor
 public class Task {
 
-    @NotNull
     public final Long id;
     public final String title;
     public final String description;
-    @NotNull
     public final Status status;
-    @NotNull
     public final Point coordinate;
-    @NotNull
     public final Type type;
-    @NotNull
     public final Long reward;
     public final Long assignee;
     public final LocalDateTime dueDate;

@@ -3,27 +3,47 @@ package com.task.provider.logic;
 import com.task.provider.model.Binder;
 import com.task.provider.model.Task;
 import com.task.provider.service.dao.R2dbcAdapter;
+import com.task.provider.service.dao.R2dbcHandler;
 import io.r2dbc.client.Query;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import static com.task.provider.exception.ValidationError.INVALID_ATTACH_REQUEST;
+import static java.util.Objects.isNull;
 
 @Component
 @RequiredArgsConstructor
 public class CreateTaskOperation {
 
     private final R2dbcAdapter r2dbcAdapter;
+    private final R2dbcHandler r2dbcHandler;
 
-    public Mono<Long> process(CreateTaskRequest request) {
-        return r2dbcAdapter.insert(request);
+    public Mono<Void> process(CreateTaskRequest request) {
+        return r2dbcHandler.inTxMono(
+            h -> r2dbcAdapter.insert(h, request)
+                .flatMap(id -> Flux.fromIterable(request.attachPhotosRequest)
+                    .map(a -> {
+                        a.setTaskId(id);
+                        return a;
+                    })
+                    .flatMap(AttachPhotosRequest::validate)
+                    .flatMap(r -> r2dbcAdapter.attach(h, r))
+                    .then()
+                )
+        );
     }
 
     @RequiredArgsConstructor
     public static class CreateTaskRequest extends Binder {
 
         public final Task newTask;
+        public final List<AttachPhotosRequest> attachPhotosRequest;
 
         public Query bindOn(Query query) {
             bind(query, "$1", String.class, newTask.title);
@@ -34,6 +54,40 @@ public class CreateTaskOperation {
             bind(query, "$6", String.class, newTask.coordinate.toString());
             bind(query, "$7", Long.class, newTask.createdBy);
             return query;
+        }
+    }
+
+    @Setter
+    @RequiredArgsConstructor
+    public static class AttachPhotosRequest extends Binder {
+
+        private Long taskId;
+        public final String contentType;
+        public final Long contentLength;
+        public final byte[] content;
+
+        public Query bindOn(Query query) {
+            query
+                .bind("$1", this.taskId)
+                .bind("$4", this.content);
+            bind(query, "$2", String.class, this.contentType);
+            bind(query, "$3", Long.class, this.contentLength);
+            return query;
+        }
+
+        public Mono<AttachPhotosRequest> asMono() {
+            return Mono.just(this);
+        }
+
+        public Mono<AttachPhotosRequest> validate() {
+            if (isNull(taskId)) {
+                return INVALID_ATTACH_REQUEST.exceptionMono("Task id cannot be null");
+            } else if (isNull(contentType)) {
+                return INVALID_ATTACH_REQUEST.exceptionMono("Content-Type cannot be null");
+            } else if (isNull(content)) {
+                return INVALID_ATTACH_REQUEST.exceptionMono("Content cannot be null");
+            }
+            return asMono();
         }
     }
 }

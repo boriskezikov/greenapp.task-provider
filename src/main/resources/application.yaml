@@ -1,6 +1,8 @@
 spring:
   application:
     name: task-provider
+  profiles:
+    active:
 db:
   host: ec2-52-44-166-58.compute-1.amazonaws.com
   port: 5432
