@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import static com.task.provider.exception.ApplicationError.TASK_NOT_FOUND_BY_ID;
+import static com.task.provider.exception.ApplicationError.ATTACHMENTS_NOT_FOUND;
 
 @Component
 @RequiredArgsConstructor
@@ -17,7 +17,7 @@ public class FindAttachmentsByIdOperation {
 
     public Flux<Attachment> process(FindAttachmentsByTaskIdRequest request) {
         return r2dbcAdapter.findAttachmentsByTaskId(request)
-                .switchIfEmpty(TASK_NOT_FOUND_BY_ID.exceptionMono("No such task exist with id = " + request.taskId));
+            .switchIfEmpty(ATTACHMENTS_NOT_FOUND.exceptionMono("No attachments found for task with id = " + request.taskId));
     }
 
     @RequiredArgsConstructor

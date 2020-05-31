@@ -4,7 +4,8 @@ import reactor.core.publisher.Mono;
 
 public enum ApplicationError {
 
-    TASK_NOT_FOUND_BY_ID(400, "Task not found error");
+    TASK_NOT_FOUND_BY_ID(400, "Task not found error"),
+    ATTACHMENTS_NOT_FOUND(400, "Attachments not found error");
 
     public final int status;
     public final String description;

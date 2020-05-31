@@ -107,8 +107,7 @@ public class RestController {
 
     @GetMapping(value = "/task/{id}/attachment", produces = {
         MediaType.IMAGE_JPEG_VALUE,
-        MediaType.IMAGE_PNG_VALUE,
-        MediaType.APPLICATION_OCTET_STREAM_VALUE
+        MediaType.IMAGE_PNG_VALUE
     })
     @ResponseBody
     public Flux<byte[]> findAttachments(@PathVariable(value = "id") Long id) {
