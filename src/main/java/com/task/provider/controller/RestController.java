@@ -16,6 +16,8 @@ import com.task.provider.logic.UpdateStatusOperation.UpdateStatusRequest;
 import com.task.provider.model.Status;
 import com.task.provider.model.Task;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -42,6 +44,8 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class RestController {
 
+    private final static Logger log = LoggerFactory.getLogger(RestController.class);
+
     private final CreateTaskOperation createTaskOperation;
     private final FindTasksOperation findTasksOperation;
     private final FindTaskByIdOperation findTaskByIdOperation;
@@ -52,13 +56,17 @@ public class RestController {
     @GetMapping("/tasks")
     public Flux<Task> findTasks(@Valid @RequestBody FindTasksRequest request) {
         return Mono.just(request)
-            .flatMapMany(findTasksOperation::process);
+            .flatMapMany(findTasksOperation::process)
+            .doOnSubscribe(s -> log.info("RestController.findTasks.in request = {}", request))
+            .doOnComplete(() -> log.info("RestController.findTasks.out"));
     }
 
     @GetMapping("/task/{id}")
     public Mono<Task> getTaskById(@PathVariable(value = "id") Long taskId) {
         return Mono.just(new FindTaskByIdRequest(taskId))
-            .flatMap(findTaskByIdOperation::process);
+            .flatMap(findTaskByIdOperation::process)
+            .doOnSubscribe(s -> log.info("RestController.getTaskById.in id = {}", taskId))
+            .doOnSuccess(s -> log.info("RestController.getTaskById.out"));
     }
 
     @PostMapping(value = "/task",
@@ -74,10 +82,11 @@ public class RestController {
                 } catch (IOException e) {
                     return Mono.error(e);
                 }
-            })
-            .collectList();
+            }).collectList();
         return request.map(a -> new CreateTaskRequest(task, a))
-            .flatMap(createTaskOperation::process);
+            .flatMap(createTaskOperation::process)
+            .doOnSubscribe(s -> log.info("RestController.createTask.in task = {}, attachments = {}", task, request))
+            .doOnSuccess(s -> log.info("RestController.createTask.out"));
     }
 
     @PutMapping(value = "/task", params = "detach")
@@ -95,16 +104,19 @@ public class RestController {
                 } catch (IOException e) {
                     return Mono.error(e);
                 }
-            })
-            .collectList();
+            }).collectList();
         return request.map(a -> new EditTaskRequest(task, a, detach))
-            .flatMap(editTaskOperation::process);
+            .flatMap(editTaskOperation::process)
+            .doOnSubscribe(s -> log.info("RestController.editTask.in task = {}, attachments = {}", request, task))
+            .doOnSuccess(s -> log.info("RestController.editTask.out"));
     }
 
     @PatchMapping("/task/{id}")
     public Mono<Void> updateStatus(@PathVariable(value = "id") Long id, @RequestParam("status") Status status) {
         return Mono.just(new UpdateStatusRequest(id, status))
-            .flatMap(updateStatusOperation::process);
+            .flatMap(updateStatusOperation::process)
+            .doOnSubscribe(s -> log.info("RestController.updateStatus.in id = {}, status = {}", id, status))
+            .doOnSuccess(s -> log.info("RestController.updateStatus.out"));
     }
 
     @GetMapping(value = "/task/{id}/attachment", produces = {
@@ -124,6 +136,8 @@ public class RestController {
                     b.flush();
                 });
                 return null;
-            }).then();
+            }).then()
+            .doOnSubscribe(s -> log.info("RestController.findAttachments.in id = {}", id))
+            .doOnSuccess(s -> log.info("RestController.findAttachments.out"));
     }
 }
