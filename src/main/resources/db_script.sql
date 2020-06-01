@@ -42,3 +42,8 @@ CREATE TABLE public.attachment
     type    VARCHAR,
     length  BIGINT
 );
+
+insert into task(status,coordinate,reward,assignee,type,created_by) values ('WAITING_FOR_APPROVE',point(100,100), 124,123,'ANIMAL','lolitka')
+insert into task(status,coordinate,reward,assignee,type,created_by) values ('CREATED',point(200,100), 124,11,'ANIMAL','sukka')
+insert into task(status,coordinate,reward,assignee,type,created_by) values ('RESOLVED',point(300,13), 126,2,'PLANT','mamka')
+insert into task(status,coordinate,reward,assignee,type,created_by) values ('CREATED',point(100,100), 124,34,'PEOPLE','lox')

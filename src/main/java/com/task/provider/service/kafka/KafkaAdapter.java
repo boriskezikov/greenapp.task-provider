@@ -27,14 +27,14 @@ public class KafkaAdapter {
     public Flux<Void> sendEvent(Event event) {
         var record = senderRecord(event);
         return producer.send(record)
-            .flatMap(r -> isNull(r.exception()) ?
-                          Mono.empty().then() :
-                          Mono.error(r.exception())
-            )
-            .retryWhen(Retry.backoff(5, Duration.ofMillis(100)))
-            .doOnSubscribe(i -> log.info("KafkaAdapter.sendEvent.in event = {}", event))
-            .doOnComplete(() -> log.info("KafkaAdapter.sendEvent.out"))
-            .onErrorMap(KAFKA_INVOCATION_ERROR::exception);
+                .flatMap(r -> isNull(r.exception()) ?
+                        Mono.empty().then() :
+                        Mono.error(r.exception())
+                )
+                .retryWhen(Retry.backoff(5, Duration.ofMillis(100)))
+                .doOnSubscribe(i -> log.info("KafkaAdapter.sendEvent.in event = {}", event))
+                .doOnComplete(() -> log.info("KafkaAdapter.sendEvent.out"))
+                .onErrorMap(KAFKA_INVOCATION_ERROR::exception);
     }
 
     private Mono<SenderRecord<String, String, Void>> senderRecord(Event event) {

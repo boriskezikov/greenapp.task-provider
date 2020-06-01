@@ -27,8 +27,8 @@ public class KafkaConfiguration {
     @RefreshScope
     public KafkaSender<String, String> kafkaSender(KafkaConsumerProperties kafkaProperties) {
         var consumerOptions = SenderOptions.<String, String>create(kafkaProperties.properties)
-            .withValueSerializer(new StringSerializer())
-            .withKeySerializer(new StringSerializer());
+                .withValueSerializer(new StringSerializer())
+                .withKeySerializer(new StringSerializer());
         return KafkaSender.create(consumerOptions);
     }
 
