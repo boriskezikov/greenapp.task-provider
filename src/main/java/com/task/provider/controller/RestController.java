@@ -103,7 +103,7 @@ public class RestController {
     }
 
     @GetMapping("/test")
-    public String test(){
+    public String test() {
         return "Hello task manager";
     }
 }

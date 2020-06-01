@@ -17,9 +17,9 @@ public class AttachPhotosOperation {
 
     public Mono<Void> process(AttachPhotosRequest request) {
         return request.asMono()
-            .flatMap(AttachPhotosRequest::validate)
-            .flatMap(r2dbcAdapter::attach)
-            .then();
+                .flatMap(AttachPhotosRequest::validate)
+                .flatMap(r2dbcAdapter::attach)
+                .then();
     }
 
     @RequiredArgsConstructor
@@ -32,10 +32,10 @@ public class AttachPhotosOperation {
 
         public Query bindOn(Query query) {
             return query
-                .bind("$1", this.taskId)
-                .bind("$2", this.contentType)
-                .bind("$3", this.contentLength)
-                .bind("$4", this.content);
+                    .bind("$1", this.taskId)
+                    .bind("$2", this.contentType)
+                    .bind("$3", this.contentLength)
+                    .bind("$4", this.content);
         }
 
         public Mono<AttachPhotosRequest> asMono() {

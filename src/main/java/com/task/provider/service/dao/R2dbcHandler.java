@@ -22,28 +22,28 @@ public class R2dbcHandler {
 
     public <T> Flux<T> inTx(Function<Handle, ? extends Publisher<T>> process) {
         return this.r2dbc.inTransaction(process)
-            .onErrorMap(not(HttpCodeException.class::isInstance), POSTGRES_INVOCATION_ERROR::exception);
+                .onErrorMap(not(HttpCodeException.class::isInstance), POSTGRES_INVOCATION_ERROR::exception);
     }
 
     public <T> Mono<T> inTxMono(Function<Handle, Mono<T>> process) {
         return this.r2dbc.inTransaction(process).collectList()
-            .flatMap(l -> l.isEmpty()
-                          ? Mono.empty()
-                          : Mono.just(l.get(0)))
-            .onErrorMap(not(HttpCodeException.class::isInstance), POSTGRES_INVOCATION_ERROR::exception);
+                .flatMap(l -> l.isEmpty()
+                        ? Mono.empty()
+                        : Mono.just(l.get(0)))
+                .onErrorMap(not(HttpCodeException.class::isInstance), POSTGRES_INVOCATION_ERROR::exception);
     }
 
     public <T> Mono<T> withHandle(Function<Handle, Mono<T>> resourceFunction) {
         return this.r2dbc.withHandle(resourceFunction).collectList()
-            .flatMap(l -> l.isEmpty()
-                          ? Mono.empty()
-                          : Mono.just(l.get(0)))
-            .onErrorMap(not(HttpCodeException.class::isInstance), POSTGRES_INVOCATION_ERROR::exception);
+                .flatMap(l -> l.isEmpty()
+                        ? Mono.empty()
+                        : Mono.just(l.get(0)))
+                .onErrorMap(not(HttpCodeException.class::isInstance), POSTGRES_INVOCATION_ERROR::exception);
     }
 
     public <T> Flux<T> withHandleFlux(Function<Handle, ? extends Publisher<T>> resourceFunction) {
         return this.r2dbc.withHandle(resourceFunction)
-            .onErrorMap(not(HttpCodeException.class::isInstance), POSTGRES_INVOCATION_ERROR::exception);
+                .onErrorMap(not(HttpCodeException.class::isInstance), POSTGRES_INVOCATION_ERROR::exception);
     }
 }
 
