@@ -17,6 +17,8 @@ import com.task.provider.model.Status;
 import com.task.provider.model.Task;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.StreamingHttpOutputMessage;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -110,15 +112,18 @@ public class RestController {
         MediaType.IMAGE_PNG_VALUE
     })
     @ResponseBody
-    public Flux<byte[]> findAttachments(@PathVariable(value = "id") Long id) {
+    public Mono<Void> findAttachments(@PathVariable(value = "id") Long id, ServerHttpResponse response) throws IOException {
         return Mono.just(new FindAttachmentsByTaskIdRequest(id))
             .flatMapMany(findAttachmentsByIdOperation::process)
-            .map(a -> a.content);
-    }
-
-    @GetMapping("/test")
-    public String test() {
-        return "Hello task manager";
+            .collectList()
+            .flatMap(l -> {
+                response.getHeaders().setContentType(MediaType.valueOf(l.get(0).contentType));
+                var zeroCopyResponse = (StreamingHttpOutputMessage) response;
+                zeroCopyResponse.setBody(b -> {
+                    b.write(l.get(0).content);
+                    b.flush();
+                });
+                return null;
+            }).then();
     }
 }
-

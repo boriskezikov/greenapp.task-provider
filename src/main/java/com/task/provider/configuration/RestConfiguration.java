@@ -1,10 +1,13 @@
 package com.task.provider.configuration;
 
+
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 
 import java.time.format.DateTimeFormatter;
 
@@ -23,5 +26,10 @@ public class RestConfiguration {
                 .deserializers(new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(dateTimeFormat)))
                 .deserializers(new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(dateTimeFormat)));
         };
+    }
+
+    @Bean
+    public HttpMessageConverter<byte[]> httpMessageConverter() {
+        return new ByteArrayHttpMessageConverter();
     }
 }

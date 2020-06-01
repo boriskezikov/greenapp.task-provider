@@ -1,6 +1,7 @@
 package com.task.provider.logic;
 
 import com.task.provider.model.Sort;
+import com.task.provider.model.Status;
 import com.task.provider.model.Task;
 import com.task.provider.service.dao.R2dbcAdapter;
 import io.r2dbc.client.Query;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.StringJoiner;
 
+import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.joining;
@@ -28,20 +30,21 @@ public class FindTasksOperation {
     @RequiredArgsConstructor
     public static class FindTasksRequest {
 
-        public final String status;
+        public final Status status;
         public final Long assignee;
         public final Long createdBy;
         public final List<Sort> sort;
 
         public Query bindOn(Query query) {
+            var pos = 1;
             if (nonNull(status)) {
-                query.bind("$1", status);
+                query.bind(format("$%s", pos++), status.toString());
             }
             if (nonNull(assignee)) {
-                query.bind("$2", assignee);
+                query.bind(format("$%s", pos++), assignee);
             }
             if (nonNull(createdBy)) {
-                query.bind("$3", createdBy);
+                query.bind(format("$%s", pos), createdBy);
             }
             return query;
         }
@@ -51,20 +54,21 @@ public class FindTasksOperation {
         }
 
         private String where() {
-            var params = new StringJoiner(", ");
+            var pos = 1;
+            var params = new StringJoiner(" AND ");
 
             if (nonNull(status)) {
-                params.add("status = $1");
+                params.add(format("status = $%d::task_status", pos++));
             }
             if (nonNull(assignee)) {
-                params.add("assignee = $2");
+                params.add(format("assignee = $%d", pos++));
             }
             if (nonNull(createdBy)) {
-                params.add("created_by = $3");
+                params.add(format("created_by = $%d", pos));
             }
 
             if (params.length() != 0) {
-                return " WHERE ".concat(params.toString());
+                return " WHERE " .concat(params.toString());
             }
             return "";
         }
@@ -74,10 +78,10 @@ public class FindTasksOperation {
                 return "";
             }
             return " ORDER BY "
-                    .concat(sort.stream()
+                .concat(sort.stream()
                             .map(Enum::toString)
                             .collect(joining(", "))
-                    );
+                );
         }
     }
 }
