@@ -53,7 +53,7 @@ public class RestController {
     private final EditTaskOperation editTaskOperation;
     private final UpdateStatusOperation updateStatusOperation;
 
-    @GetMapping("/tasks")
+    @PostMapping("/tasks")
     public Flux<Task> findTasks(@Valid @RequestBody FindTasksRequest request) {
         return Mono.just(request)
             .flatMapMany(findTasksOperation::process)
