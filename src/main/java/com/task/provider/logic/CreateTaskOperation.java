@@ -9,6 +9,9 @@ import com.task.provider.service.kafka.KafkaAdapter.Event;
 import io.r2dbc.client.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,12 +19,15 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.task.provider.Utils.logProcess;
 import static com.task.provider.exception.ValidationError.INVALID_ATTACH_REQUEST;
 import static java.util.Objects.isNull;
 
 @Component
 @RequiredArgsConstructor
 public class CreateTaskOperation {
+
+    private final static Logger log = LoggerFactory.getLogger(CreateTaskOperation.class);
 
     private final R2dbcAdapter r2dbcAdapter;
     private final R2dbcHandler r2dbcHandler;
@@ -40,9 +46,10 @@ public class CreateTaskOperation {
                     .flatMap(r -> kafkaAdapter.sendEvent(new Event("TaskCreated", r, request.newTask.createdBy)))
                     .then()
                 )
-        );
+        ).as(logProcess(log, "CreateTaskOperation", request));
     }
 
+    @ToString
     @RequiredArgsConstructor
     public static class CreateTaskRequest extends Binder {
 
@@ -62,6 +69,7 @@ public class CreateTaskOperation {
     }
 
     @Setter
+    @ToString
     @RequiredArgsConstructor
     public static class AttachPhotosRequest extends Binder {
 

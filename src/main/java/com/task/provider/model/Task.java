@@ -4,11 +4,13 @@ import io.r2dbc.spi.Row;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Builder
+@ToString
 @EqualsAndHashCode(exclude = {"id", "updated", "created", "createdBy"})
 @RequiredArgsConstructor
 public class Task {

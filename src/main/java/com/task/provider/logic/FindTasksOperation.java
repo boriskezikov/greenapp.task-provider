@@ -6,12 +6,16 @@ import com.task.provider.model.Task;
 import com.task.provider.service.dao.R2dbcAdapter;
 import io.r2dbc.client.Query;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.StringJoiner;
 
+import static com.task.provider.Utils.logProcessFlux;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -21,12 +25,16 @@ import static java.util.stream.Collectors.joining;
 @RequiredArgsConstructor
 public class FindTasksOperation {
 
+    private final static Logger log = LoggerFactory.getLogger(FindTasksOperation.class);
+
     private final R2dbcAdapter r2dbcAdapter;
 
     public Flux<Task> process(FindTasksRequest request) {
-        return r2dbcAdapter.findList(request);
+        return r2dbcAdapter.findList(request)
+            .as(logProcessFlux(log, "FindTasksOperation", request));
     }
 
+    @ToString
     @RequiredArgsConstructor
     public static class FindTasksRequest {
 

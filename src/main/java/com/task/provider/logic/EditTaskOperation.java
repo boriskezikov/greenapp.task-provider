@@ -10,6 +10,9 @@ import com.task.provider.service.kafka.KafkaAdapter;
 import com.task.provider.service.kafka.KafkaAdapter.Event;
 import io.r2dbc.client.Update;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,11 +20,14 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.task.provider.Utils.logProcess;
 import static com.task.provider.exception.ApplicationError.TASK_NOT_FOUND_BY_ID;
 
 @Component
 @RequiredArgsConstructor
 public class EditTaskOperation {
+
+    private final static Logger log = LoggerFactory.getLogger(EditTaskOperation.class);
 
     private final R2dbcAdapter r2dbcAdapter;
     private final R2dbcHandler r2dbcHandler;
@@ -43,9 +49,11 @@ public class EditTaskOperation {
                     .flatMap(a -> r2dbcAdapter.attach(h, a));
                 var sendEvent = kafkaAdapter.sendEvent(new Event("TaskCreated", id, request.newTask.createdBy));
                 return Mono.when(updateTask, detach, attach, sendEvent);
-            }));
+            }))
+            .as(logProcess(log, "EditTaskOperation", request));
     }
 
+    @ToString
     @RequiredArgsConstructor
     public static class EditTaskRequest {
 
@@ -65,6 +73,7 @@ public class EditTaskOperation {
         }
     }
 
+    @ToString
     @RequiredArgsConstructor
     public static class UpdateTaskRequest extends Binder {
 
