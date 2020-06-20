@@ -1,7 +1,5 @@
 package com.task.provider.exception;
 
-import reactor.core.publisher.Mono;
-
 public enum InvocationError {
 
     POSTGRES_INVOCATION_ERROR(500, "Error invoking Postgres"),
@@ -25,10 +23,6 @@ public enum InvocationError {
 
     public InvocationErrorException exception(Throwable e) {
         return new InvocationErrorException(e, this);
-    }
-
-    public <T> Mono<T> exceptionMono(Throwable e) {
-        return Mono.error(exception(e));
     }
 
     public static class InvocationErrorException extends HttpCodeException {

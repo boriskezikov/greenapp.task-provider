@@ -22,7 +22,7 @@ public class KafkaAdapter {
     private final static Logger log = LoggerFactory.getLogger(KafkaAdapter.class);
 
     private final KafkaProducer producer;
-    private final static String topic = "u4t0gea8-task-event";
+    private final static String topic = "2z2j7jw9-task-event";
 
     public Flux<Void> sendEvent(Event event) {
         var record = senderRecord(event);

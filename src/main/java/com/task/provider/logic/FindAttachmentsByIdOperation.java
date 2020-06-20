@@ -23,7 +23,9 @@ public class FindAttachmentsByIdOperation {
 
     public Flux<Attachment> process(FindAttachmentsByTaskIdRequest request) {
         return r2dbcAdapter.findAttachmentsByTaskId(request)
-            .switchIfEmpty(ATTACHMENTS_NOT_FOUND.exceptionMono("No attachments found for task with id = " + request.taskId))
+            .switchIfEmpty(
+                ATTACHMENTS_NOT_FOUND.exceptionMono(
+                    "No attachments found for task with id = " + request.taskId))
             .as(logProcessFlux(log, "FindAttachmentsByIdOperation", request));
     }
 

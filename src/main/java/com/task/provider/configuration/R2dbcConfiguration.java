@@ -6,6 +6,7 @@ import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
+import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +26,7 @@ public class R2dbcConfiguration {
     }
 
     @Bean
-    static ConnectionPool connectionPool(PostgresqlConnectionFactory connectionFactory) {
+    static ConnectionPool connectionPool(ConnectionFactory connectionFactory) {
         var config = ConnectionPoolConfiguration.builder(connectionFactory)
             .maxSize(2)
             .initialSize(2)
@@ -34,7 +35,7 @@ public class R2dbcConfiguration {
     }
 
     @Bean
-    static PostgresqlConnectionFactory connectionFactory(R2dbcProperties properties) {
+    static ConnectionFactory connectionFactory(R2dbcProperties properties) {
         var config = PostgresqlConnectionConfiguration.builder()
             .host(properties.host)
             .port(properties.port)
