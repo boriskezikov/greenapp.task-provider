@@ -43,7 +43,31 @@ CREATE TABLE public.attachment
     length  BIGINT
 );
 
-insert into task(status,coordinate,reward,assignee,type,created_by) values ('WAITING_FOR_APPROVE',point(100,100), 124,123,'ANIMAL','lolitka')
-insert into task(status,coordinate,reward,assignee,type,created_by) values ('CREATED',point(200,100), 124,11,'ANIMAL','sukka')
-insert into task(status,coordinate,reward,assignee,type,created_by) values ('RESOLVED',point(300,13), 126,2,'PLANT','mamka')
-insert into task(status,coordinate,reward,assignee,type,created_by) values ('CREATED',point(100,100), 124,34,'PEOPLE','lox')
+CREATE INDEX ON public.task (status, assignee, created_by);
+CREATE INDEX ON public.task (assignee, created_by);
+CREATE INDEX ON public.task (created_by);
+
+/* For test population */
+CREATE OR REPLACE FUNCTION populate_tasks(n INTEGER) RETURNS VOID
+    LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    counter INTEGER := 0;
+BEGIN
+    LOOP
+        EXIT WHEN counter = n;
+        counter := counter + 1;
+        INSERT INTO public.task (title, description, status, coordinate, reward, assignee, type, due_date, created_by)
+        VALUES (CONCAT('Task ', counter),
+                CONCAT('Some description of Task ', counter),
+                'CREATED',
+                point(random() * 261 - 180, random() * 181 - 90),
+                counter * 100,
+                floor(random() * 1001),
+                (SELECT t FROM unnest(enum_range(NULL::task_type)) t ORDER BY random() LIMIT 1),
+                (SELECT * FROM generate_series('2020-08-01'::timestamp, '2021-10-01'::timestamp, '1 day'::interval) LIMIT 1),
+                floor(random() * 1001));
+    END LOOP;
+END;
+$$;
