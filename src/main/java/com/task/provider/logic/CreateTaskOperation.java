@@ -35,21 +35,26 @@ public class CreateTaskOperation {
 
     public Mono<Void> process(CreateTaskRequest request) {
         return r2dbcHandler.inTxMono(
-            h -> r2dbcAdapter.insert(h, request)
-                .flatMap(id -> Flux.fromIterable(request.attachPhotosRequest)
-                    .map(a -> {
-                        a.setTaskId(id);
-                        return a;
-                    })
-                    .flatMap(AttachPhotosRequest::validate)
-                    .flatMap(r -> r2dbcAdapter.attach(h, r))
-                    .flatMap(r -> kafkaAdapter.sendEvent(new Event("TaskCreated", r, request.newTask.createdBy)))
-                    .then()
-                )
+            h -> {
+                var taskIdMono = r2dbcAdapter.insert(h, request).cache();
+                var attachPhotosMono = taskIdMono
+                    .flatMapMany(id -> Flux.fromIterable(request.attachPhotosRequest)
+                        .map(a -> {
+                            a.setTaskId(id);
+                            return a;
+                        })
+                        .flatMap(AttachPhotosRequest::validate)
+                        .flatMap(r -> r2dbcAdapter.attach(h, r))
+                    );
+                var sendEventMono = taskIdMono
+                    .map(id -> new Event("TaskCreated", id, request.newTask.createdBy))
+                    .flatMapMany(kafkaAdapter::sendEvent);
+                return Mono.when(attachPhotosMono);
+            }
         ).as(logProcess(log, "CreateTaskOperation", request));
     }
 
-    @ToString
+    @ToString(exclude = "attachPhotosRequest")
     @RequiredArgsConstructor
     public static class CreateTaskRequest extends Binder {
 

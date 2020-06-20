@@ -19,21 +19,21 @@ public class KafkaConfiguration {
 
     @Bean
     @ConfigurationProperties("kafka")
-    KafkaConsumerProperties kafkaProperties() {
-        return new KafkaConsumerProperties();
+    KafkaProducerProperties kafkaProperties() {
+        return new KafkaProducerProperties();
     }
 
     @Bean
     @RefreshScope
-    public KafkaSender<String, String> kafkaSender(KafkaConsumerProperties kafkaProperties) {
-        var consumerOptions = SenderOptions.<String, String>create(kafkaProperties.properties)
-                .withValueSerializer(new StringSerializer())
-                .withKeySerializer(new StringSerializer());
-        return KafkaSender.create(consumerOptions);
+    public KafkaSender<String, String> kafkaSender(KafkaProducerProperties kafkaProperties) {
+        var producerOptions = SenderOptions.<String, String>create(kafkaProperties.properties)
+            .withValueSerializer(new StringSerializer())
+            .withKeySerializer(new StringSerializer());
+        return KafkaSender.create(producerOptions);
     }
 
     @Setter
-    public static class KafkaConsumerProperties {
+    public static class KafkaProducerProperties {
 
         public Map<String, Object> properties = new HashMap<>();
     }

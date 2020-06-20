@@ -1,6 +1,7 @@
 package com.task.provider.service.kafka;
 
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +21,9 @@ import static java.util.Objects.isNull;
 public class KafkaAdapter {
 
     private final static Logger log = LoggerFactory.getLogger(KafkaAdapter.class);
+    private final static String topic = "2z2j7jw9-task-event";
 
     private final KafkaProducer producer;
-    private final static String topic = "2z2j7jw9-task-event";
 
     public Flux<Void> sendEvent(Event event) {
         var record = senderRecord(event);
@@ -38,10 +39,11 @@ public class KafkaAdapter {
     }
 
     private Mono<SenderRecord<String, String, Void>> senderRecord(Event event) {
-        var record = new ProducerRecord<String, String>(topic, event.value);
+        var record = new ProducerRecord<String, String>(topic, event.toString());
         return Mono.just(SenderRecord.create(record, null));
     }
 
+    @ToString
     @RequiredArgsConstructor
     public static class Event {
 
