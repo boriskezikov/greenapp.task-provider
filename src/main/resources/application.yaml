@@ -12,8 +12,8 @@ db:
 kafka:
   properties:
     "[bootstrap.servers]": moped-01.srvs.cloudkafka.com:9094,moped-02.srvs.cloudkafka.com:9094,moped-03.srvs.cloudkafka.com:9094
-    "[sasl.jaas.config]": org.apache.kafka.common.security.scram.ScramLoginModule required username="uryu7l0c" password="rh2dpUrTHe7tGIuXZbmX2D4vkyjZZgUN";
-    "[client.id]": tecm.dedup-service-retryer
+    "[sasl.jaas.config]": org.apache.kafka.common.security.scram.ScramLoginModule required username="2z2j7jw9" password="gGBcXuQW6peGnHhInj9TE09n_d4IadbE";
+    "[client.id]": 2z2j7jw9-producer
     "[acks]": all
     "[delivery.timeout.ms]": 90000
     "[enable.idempotence]": true
