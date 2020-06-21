@@ -20,8 +20,8 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.task.provider.Utils.logProcess;
 import static com.task.provider.exception.ApplicationError.TASK_NOT_FOUND_BY_ID;
+import static com.task.provider.utils.Utils.logProcess;
 
 @Component
 @RequiredArgsConstructor

@@ -19,8 +19,8 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.task.provider.Utils.logProcess;
 import static com.task.provider.exception.ValidationError.INVALID_ATTACH_REQUEST;
+import static com.task.provider.utils.Utils.logProcess;
 import static java.util.Objects.isNull;
 
 @Component

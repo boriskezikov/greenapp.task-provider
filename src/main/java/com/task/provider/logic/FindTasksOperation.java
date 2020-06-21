@@ -15,7 +15,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static com.task.provider.Utils.logProcessFlux;
+import static com.task.provider.utils.Utils.logProcessFlux;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.task.provider.Utils.logProcess;
+import static com.task.provider.utils.Utils.logProcess;
 
 @Component
 @RequiredArgsConstructor
