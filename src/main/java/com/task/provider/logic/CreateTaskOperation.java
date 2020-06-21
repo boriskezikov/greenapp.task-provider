@@ -33,7 +33,7 @@ public class CreateTaskOperation {
     private final R2dbcHandler r2dbcHandler;
     private final KafkaAdapter kafkaAdapter;
 
-    public Mono<Void> process(CreateTaskRequest request) {
+    public Mono<Long> process(CreateTaskRequest request) {
         return r2dbcHandler.inTxMono(
             h -> {
                 var taskIdMono = r2dbcAdapter.insert(h, request).cache();
@@ -49,7 +49,8 @@ public class CreateTaskOperation {
                 var sendEventMono = taskIdMono
                     .map(id -> new Event("TaskCreated", id, request.newTask.createdBy))
                     .flatMapMany(kafkaAdapter::sendEvent);
-                return Mono.when(attachPhotosMono);
+                return Mono.when(attachPhotosMono)
+                    .then(taskIdMono);
             }
         ).as(logProcess(log, "CreateTaskOperation", request));
     }

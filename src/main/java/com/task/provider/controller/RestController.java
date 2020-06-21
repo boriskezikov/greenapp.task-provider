@@ -74,7 +74,7 @@ public class RestController {
         consumes = {
             MediaType.MULTIPART_FORM_DATA_VALUE
         })
-    public Mono<Void> createTask(@RequestPart("task") Task task,
+    public Mono<Long> createTask(@RequestPart("task") Task task,
                                  @RequestPart(value = "attachment", required = false) List<MultipartFile> attachment) {
         var request = Flux.fromIterable(attachment)
             .flatMap(a -> {
