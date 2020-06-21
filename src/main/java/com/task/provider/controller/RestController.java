@@ -18,9 +18,10 @@ import com.task.provider.model.Task;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
-import org.springframework.http.StreamingHttpOutputMessage;
-import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -120,23 +121,22 @@ public class RestController {
     }
 
     @GetMapping(value = "/task/{id}/attachment", produces = {
-        MediaType.IMAGE_JPEG_VALUE,
-        MediaType.IMAGE_PNG_VALUE
+        MediaType.MULTIPART_FORM_DATA_VALUE
     })
     @ResponseBody
-    public Mono<Void> findAttachments(@PathVariable(value = "id") Long id, ServerHttpResponse response) throws IOException {
+    public Mono<MultiValueMap<String, HttpEntity<?>>> findAttachments(@PathVariable(value = "id") Long id) {
         return Mono.just(new FindAttachmentsByTaskIdRequest(id))
             .flatMapMany(findAttachmentsByIdOperation::process)
             .collectList()
-            .flatMap(l -> {
-                response.getHeaders().setContentType(MediaType.valueOf(l.get(0).contentType));
-                var zeroCopyResponse = (StreamingHttpOutputMessage) response;
-                zeroCopyResponse.setBody(b -> {
-                    b.write(l.get(0).content);
-                    b.flush();
-                });
-                return null;
-            }).then()
+            .map(l -> {
+                var builder = new MultipartBodyBuilder();
+                l.forEach(a -> builder.part(
+                    "attachment",
+                    a.content,
+                    MediaType.valueOf(a.contentType)
+                ));
+                return builder.build();
+            })
             .doOnSubscribe(s -> log.info("RestController.findAttachments.in id = {}", id))
             .doOnSuccess(s -> log.info("RestController.findAttachments.out"));
     }
