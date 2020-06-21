@@ -1,12 +1,8 @@
 package com.task.provider.exception;
 
-import reactor.core.publisher.Mono;
-
 public enum AuthenticationError {
 
-    UNAUTHORIZED(401, "Unauthorized"),
-    DOCUMENT_CANNOT_BE_SHARED(403, "Document type cannot be shared"),
-    FORBIDDEN(403, "Forbidden");
+    UNAUTHORIZED(401, "Unauthorized");
 
     public final int status;
     public final String description;
@@ -26,14 +22,6 @@ public enum AuthenticationError {
 
     public AuthenticationErrorException exception() {
         return new AuthenticationErrorException(this);
-    }
-
-    public <T> Mono<T> exceptionMono(String body) {
-        return Mono.error(exception(body));
-    }
-
-    public <T> Mono<T> exceptionMono() {
-        return Mono.error(exception());
     }
 
     public static class AuthenticationErrorException extends HttpCodeException {
