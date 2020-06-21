@@ -86,7 +86,7 @@ public class RestController {
             }).collectList();
         return request.map(a -> new CreateTaskRequest(task, a))
             .flatMap(createTaskOperation::process)
-            .doOnSubscribe(s -> log.info("RestController.createTask.in task = {}, attachments = {}", task, request))
+            .doOnSubscribe(s -> log.info("RestController.createTask.in task = {}", task))
             .doOnSuccess(s -> log.info("RestController.createTask.out"));
     }
 
@@ -108,7 +108,7 @@ public class RestController {
             }).collectList();
         return request.map(a -> new EditTaskRequest(task, a, detach))
             .flatMap(editTaskOperation::process)
-            .doOnSubscribe(s -> log.info("RestController.editTask.in task = {}, attachments = {}", request, task))
+            .doOnSubscribe(s -> log.info("RestController.editTask.in task = {}", task))
             .doOnSuccess(s -> log.info("RestController.editTask.out"));
     }
 
