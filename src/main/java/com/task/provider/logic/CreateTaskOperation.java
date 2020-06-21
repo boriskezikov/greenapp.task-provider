@@ -49,7 +49,7 @@ public class CreateTaskOperation {
                 var sendEventMono = taskIdMono
                     .map(id -> new Event("TaskCreated", id, request.newTask.createdBy))
                     .flatMapMany(kafkaAdapter::sendEvent);
-                return Mono.when(attachPhotosMono)
+                return Mono.when(attachPhotosMono, sendEventMono)
                     .then(taskIdMono);
             }
         ).as(logProcess(log, "CreateTaskOperation", request));
