@@ -19,8 +19,8 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.task.provider.Utils.logProcess;
 import static com.task.provider.exception.ValidationError.INVALID_ATTACH_REQUEST;
+import static com.task.provider.utils.Utils.logProcess;
 import static java.util.Objects.isNull;
 
 @Component
@@ -49,7 +49,7 @@ public class CreateTaskOperation {
                 var sendEventMono = taskIdMono
                     .map(id -> new Event("TaskCreated", id, request.newTask.createdBy))
                     .flatMapMany(kafkaAdapter::sendEvent);
-                return Mono.when(attachPhotosMono)
+                return Mono.when(attachPhotosMono, sendEventMono)
                     .then(taskIdMono);
             }
         ).as(logProcess(log, "CreateTaskOperation", request));

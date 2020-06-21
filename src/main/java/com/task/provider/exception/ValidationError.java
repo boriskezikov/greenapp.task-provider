@@ -30,10 +30,6 @@ public enum ValidationError {
         return Mono.error(exception(body));
     }
 
-    public <T> Mono<T> exceptionMono() {
-        return Mono.error(exception());
-    }
-
     public static class ValidationErrorException extends HttpCodeException {
 
         public ValidationErrorException(ValidationError error, String args) {

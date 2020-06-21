@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import static com.task.provider.Utils.logProcessFlux;
 import static com.task.provider.exception.ApplicationError.ATTACHMENTS_NOT_FOUND;
+import static com.task.provider.utils.Utils.logProcessFlux;
 
 @Component
 @RequiredArgsConstructor

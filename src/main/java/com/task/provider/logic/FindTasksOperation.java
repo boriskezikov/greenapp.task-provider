@@ -15,7 +15,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static com.task.provider.Utils.logProcessFlux;
+import static com.task.provider.utils.Utils.logProcessFlux;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -41,14 +41,16 @@ public class FindTasksOperation {
         public final Status status;
         public final Long assignee;
         public final Long createdBy;
+        public final String searchString;
         public final List<Sort> sort;
         public final Long offset;
         public final Long limit;
 
-        public FindTasksRequest(Status status, Long assignee, Long createdBy, List<Sort> sort, Long offset, Long limit) {
+        public FindTasksRequest(Status status, Long assignee, Long createdBy, String searchString, List<Sort> sort, Long offset, Long limit) {
             this.status = status;
             this.assignee = assignee;
             this.createdBy = createdBy;
+            this.searchString = searchString;
             this.sort = sort;
             this.offset = requireNonNullElse(offset, 0L);
             this.limit = requireNonNullElse(limit, 20L);
@@ -76,8 +78,11 @@ public class FindTasksOperation {
         private String where() {
             var pos = 1;
             var params = new StringJoiner(" AND ");
-            params.add(" WHERE id > " + offset.toString());
+            params.add(format(" WHERE id > %d ", offset));
 
+            if (nonNull(searchString)) {
+                params.add(format("title LIKE '%s%%'", searchString));
+            }
             if (nonNull(status)) {
                 params.add(format("status = $%d::task_status", pos++));
             }

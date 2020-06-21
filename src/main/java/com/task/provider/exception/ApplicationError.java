@@ -35,14 +35,6 @@ public enum ApplicationError {
         return Mono.error(exception(body));
     }
 
-    public <T> Mono<T> exceptionMono(Exception e) {
-        return Mono.error(exception(e));
-    }
-
-    public <T> Mono<T> exceptionMono() {
-        return Mono.error(exception());
-    }
-
     public static class ApplicationErrorException extends HttpCodeException {
 
         public ApplicationErrorException(ApplicationError error, String args) {

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Scanner;
 import javax.servlet.Filter;
@@ -16,6 +17,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static com.task.provider.exception.AuthenticationError.UNAUTHORIZED;
 import static java.util.Objects.isNull;
 
 @Component
@@ -25,15 +27,14 @@ public class RequestFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-
-        HttpServletRequest req = (HttpServletRequest) request;
+        var req = (HttpServletRequest) request;
         var authHeader = req.getHeader("X-GREEN-APP-ID");
         logRequest(req);
         if (isNull(authHeader) || !Objects.equals(authHeader, "GREEN")) {
-            HttpServletResponse httpResponse = (HttpServletResponse) response;
+            var httpResponse = (HttpServletResponse) response;
             httpResponse.setContentType("application/json");
             httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Required headers not specified in the request or incorrect");
-            return;
+            throw UNAUTHORIZED.exception();
         }
         chain.doFilter(request, response);
     }
@@ -48,15 +49,13 @@ public class RequestFilter implements Filter {
         LOG.info(extractPostRequestBody(httpRequest));
     }
 
-    static String extractPostRequestBody(HttpServletRequest request) {
+    String extractPostRequestBody(HttpServletRequest request) {
         if ("GET".equalsIgnoreCase(request.getMethod())) {
-            Scanner s = null;
-            try {
-                s = new Scanner(request.getInputStream(), "UTF-8").useDelimiter("\\A");
+            try (var s = new Scanner(request.getInputStream(), StandardCharsets.UTF_8).useDelimiter("\\A")) {
+                return s.hasNext() ? s.next() : "";
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return s.hasNext() ? s.next() : "";
         }
         return "";
     }
