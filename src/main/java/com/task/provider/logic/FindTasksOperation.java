@@ -78,8 +78,11 @@ public class FindTasksOperation {
         private String where() {
             var pos = 1;
             var params = new StringJoiner(" AND ");
-            params.add(format(" WHERE id > %d AND title LIKE '%s%%'", offset, searchString));
+            params.add(format(" WHERE id > %d ", offset));
 
+            if (nonNull(searchString)) {
+                params.add(format("title LIKE '%s%%'", searchString));
+            }
             if (nonNull(status)) {
                 params.add(format("status = $%d::task_status", pos++));
             }
