@@ -102,7 +102,7 @@ public class R2dbcAdapter {
             return this.handler.withHandle(h -> update(h, request));
         }
         var sql = "UPDATE public.task SET title = $1, description = $2, type = $3::task_type, reward = $4, " +
-            "due_date = $5, coordinate = point($6), assignee = $8 updated = now() " +
+            "due_date = $5, coordinate = point($6), assignee = $8, updated = now() " +
             "WHERE id = $7";
         return request.bindOn(handle.createUpdate(sql))
             .execute()

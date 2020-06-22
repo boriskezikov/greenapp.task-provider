@@ -53,7 +53,7 @@ public class EditTaskOperation {
             .as(logProcess(log, "EditTaskOperation", request));
     }
 
-    @ToString
+    @ToString(exclude = "attachPhotosRequest")
     @RequiredArgsConstructor
     public static class EditTaskRequest {
 
