@@ -93,7 +93,7 @@ public class RestController {
     @PutMapping(value = "/task", params = "detach")
     public Mono<Void> editTask(@RequestPart("task") Task task,
                                @RequestPart(value = "attachment", required = false) List<MultipartFile> attachment,
-                               @RequestParam(value = "detach") boolean detach) {
+                               @RequestParam(value = "detach", defaultValue = "false") boolean detach) {
         var request = Flux.fromIterable(attachment)
             .flatMap(a -> {
                 try {

@@ -55,11 +55,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jdbc</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-tools</artifactId>
       <version>3.3.5.RELEASE</version>
@@ -68,7 +63,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.2.12</version>
+      <scope>runtime</scope>
     </dependency>
 
     <!-- Kafka -->
