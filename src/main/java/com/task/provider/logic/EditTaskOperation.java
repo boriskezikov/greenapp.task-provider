@@ -91,6 +91,7 @@ public class EditTaskOperation {
             bind(query, "$5", LocalDateTime.class, newTask.dueDate);
             bind(query, "$6", String.class, newTask.coordinate.toString());
             bind(query, "$7", Long.class, newTask.id);
+            bind(query, "$8", Long.class, newTask.assignee);
             return query;
         }
     }
