@@ -1,5 +1,6 @@
 package com.task.provider.service.kafka;
 
+import com.task.provider.model.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -45,6 +46,7 @@ public class KafkaAdapter {
         public final String value;
         public final Long taskId;
         public final Long userId;
+        public final Status status;
     }
 }
 

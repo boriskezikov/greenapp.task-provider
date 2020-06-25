@@ -3,6 +3,7 @@ package com.task.provider.logic;
 import com.task.provider.logic.CreateTaskOperation.AttachPhotosRequest;
 import com.task.provider.logic.FindTaskByIdOperation.FindTaskByIdRequest;
 import com.task.provider.model.Binder;
+import com.task.provider.model.Status;
 import com.task.provider.model.Task;
 import com.task.provider.service.dao.R2dbcAdapter;
 import com.task.provider.service.dao.R2dbcHandler;
@@ -22,6 +23,8 @@ import java.util.List;
 
 import static com.task.provider.exception.ApplicationError.TASK_NOT_FOUND_BY_ID;
 import static com.task.provider.utils.Utils.logProcess;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Component
 @RequiredArgsConstructor
@@ -47,7 +50,7 @@ public class EditTaskOperation {
                              Mono.empty();
                 var attach = Flux.fromIterable(request.attachPhotosRequest)
                     .flatMap(a -> r2dbcAdapter.attach(h, a));
-                var sendEvent = kafkaAdapter.sendEvent(new Event("TaskCreated", id, request.newTask.createdBy));
+                var sendEvent = kafkaAdapter.sendEvent(new Event("TaskEdited", id, request.newTask.createdBy, r.newTask.status));
                 return Mono.when(updateTask, detach, attach, sendEvent);
             }))
             .as(logProcess(log, "EditTaskOperation", request));
@@ -68,6 +71,9 @@ public class EditTaskOperation {
         public Mono<UpdateTaskRequest> updateRequest(Task oldTask) {
             if (oldTask.equals(this.newTask)) {
                 return Mono.empty();
+            }
+            if (isNull(oldTask.assignee) && nonNull(newTask.assignee)) {
+                return new UpdateTaskRequest(Task.withNewStatus(newTask, Status.IN_PROGRESS)).asMono();
             }
             return new UpdateTaskRequest(newTask).asMono();
         }

@@ -1,6 +1,7 @@
 package com.task.provider.logic;
 
 import com.task.provider.model.Binder;
+import com.task.provider.model.Status;
 import com.task.provider.model.Task;
 import com.task.provider.service.dao.R2dbcAdapter;
 import com.task.provider.service.dao.R2dbcHandler;
@@ -47,7 +48,7 @@ public class CreateTaskOperation {
                         .flatMap(r -> r2dbcAdapter.attach(h, r))
                     );
                 var sendEventMono = taskIdMono
-                    .map(id -> new Event("TaskCreated", id, request.newTask.createdBy))
+                    .map(id -> new Event("TaskCreated", id, request.newTask.createdBy, Status.CREATED))
                     .flatMapMany(kafkaAdapter::sendEvent);
                 return Mono.when(attachPhotosMono, sendEventMono)
                     .then(taskIdMono);

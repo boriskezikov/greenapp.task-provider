@@ -62,6 +62,21 @@ public class Task {
             .build();
     }
 
+    public static Task withNewStatus(Task task, Status status) {
+        return Task.builder()
+            .id(task.id)
+            .title(task.title)
+            .description(task.description)
+            .status(status)
+            .coordinate(task.coordinate)
+            .type(task.type)
+            .reward(task.reward)
+            .assignee(task.assignee)
+            .dueDate(task.dueDate)
+            .createdBy(task.createdBy)
+            .build();
+    }
+
     public Task setAttachmentIds(List<Integer> attachmentIds) {
         this.attachmentIds = attachmentIds;
         return this;

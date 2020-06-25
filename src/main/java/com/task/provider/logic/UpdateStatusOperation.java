@@ -3,6 +3,8 @@ package com.task.provider.logic;
 import com.task.provider.logic.FindTaskByIdOperation.FindTaskByIdRequest;
 import com.task.provider.model.Status;
 import com.task.provider.service.dao.R2dbcAdapter;
+import com.task.provider.service.kafka.KafkaAdapter;
+import com.task.provider.service.kafka.KafkaAdapter.Event;
 import io.r2dbc.client.Update;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -20,6 +22,7 @@ public class UpdateStatusOperation {
     private final static Logger log = LoggerFactory.getLogger(UpdateStatusOperation.class);
 
     public final R2dbcAdapter r2dbcAdapter;
+    private final KafkaAdapter kafkaAdapter;
 
     public Mono<Void> process(UpdateStatusRequest request) {
         var oldTask = this.r2dbcAdapter.findById(new FindTaskByIdRequest(request.taskId))
@@ -33,7 +36,7 @@ public class UpdateStatusOperation {
                 return request;
             })
             .flatMap(r2dbcAdapter::updateStatus)
-            .then()
+            .then(kafkaAdapter.sendEvent(new Event("StatusChanged", request.taskId, null, request.status)))
             .as(logProcess(log, "UpdateStatusOperation", request));
     }
 
