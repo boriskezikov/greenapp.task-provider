@@ -15,9 +15,9 @@ import static com.task.provider.utils.Utils.logProcessFlux;
 
 @Component
 @RequiredArgsConstructor
-public class FindAttachmentsByIdOperation {
+public class FindAttachmentsByTaskIdOperation {
 
-    private final static Logger log = LoggerFactory.getLogger(FindAttachmentsByIdOperation.class);
+    private final static Logger log = LoggerFactory.getLogger(FindAttachmentsByTaskIdOperation.class);
 
     private final R2dbcAdapter r2dbcAdapter;
 
@@ -26,7 +26,7 @@ public class FindAttachmentsByIdOperation {
             .switchIfEmpty(
                 ATTACHMENTS_NOT_FOUND.exceptionMono(
                     "No attachments found for task with id = " + request.taskId))
-            .as(logProcessFlux(log, "FindAttachmentsByIdOperation", request));
+            .as(logProcessFlux(log, "FindAttachmentsByTaskIdOperation", request));
     }
 
     @ToString

@@ -1,18 +1,22 @@
 package com.task.provider.model;
 
 import io.r2dbc.spi.Row;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Builder
 @ToString
 @EqualsAndHashCode(exclude = {"id", "updated", "created", "createdBy"})
-@RequiredArgsConstructor
+@Getter
+@AllArgsConstructor
 public class Task {
 
     public final Long id;
@@ -22,6 +26,7 @@ public class Task {
     public final Point coordinate;
     public final Type type;
     public final Long reward;
+    private List<Integer> attachmentIds;
     public final Long assignee;
     public final LocalDateTime dueDate;
     public final LocalDateTime updated;
@@ -55,6 +60,11 @@ public class Task {
             .reward(row.get("reward", Long.class))
             .dueDate(row.get("due_date", LocalDateTime.class))
             .build();
+    }
+
+    public Task setAttachmentIds(List<Integer> attachmentIds) {
+        this.attachmentIds = attachmentIds;
+        return this;
     }
 
     @RequiredArgsConstructor

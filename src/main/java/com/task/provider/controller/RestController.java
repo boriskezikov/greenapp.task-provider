@@ -5,8 +5,10 @@ import com.task.provider.logic.CreateTaskOperation.AttachPhotosRequest;
 import com.task.provider.logic.CreateTaskOperation.CreateTaskRequest;
 import com.task.provider.logic.EditTaskOperation;
 import com.task.provider.logic.EditTaskOperation.EditTaskRequest;
-import com.task.provider.logic.FindAttachmentsByIdOperation;
-import com.task.provider.logic.FindAttachmentsByIdOperation.FindAttachmentsByTaskIdRequest;
+import com.task.provider.logic.FindAttachmentByIdOperation;
+import com.task.provider.logic.FindAttachmentByIdOperation.FindAttachmentsByIdRequest;
+import com.task.provider.logic.FindAttachmentsByTaskIdOperation;
+import com.task.provider.logic.FindAttachmentsByTaskIdOperation.FindAttachmentsByTaskIdRequest;
 import com.task.provider.logic.FindTaskByIdOperation;
 import com.task.provider.logic.FindTaskByIdOperation.FindTaskByIdRequest;
 import com.task.provider.logic.FindTasksOperation;
@@ -50,7 +52,8 @@ public class RestController {
     private final CreateTaskOperation createTaskOperation;
     private final FindTasksOperation findTasksOperation;
     private final FindTaskByIdOperation findTaskByIdOperation;
-    private final FindAttachmentsByIdOperation findAttachmentsByIdOperation;
+    private final FindAttachmentByIdOperation findAttachmentByIdOperation;
+    private final FindAttachmentsByTaskIdOperation findAttachmentsByTaskIdOperation;
     private final EditTaskOperation editTaskOperation;
     private final UpdateStatusOperation updateStatusOperation;
 
@@ -126,7 +129,7 @@ public class RestController {
     @ResponseBody
     public Mono<MultiValueMap<String, HttpEntity<?>>> findAttachments(@PathVariable(value = "id") Long id) {
         return Mono.just(new FindAttachmentsByTaskIdRequest(id))
-            .flatMapMany(findAttachmentsByIdOperation::process)
+            .flatMapMany(findAttachmentsByTaskIdOperation::process)
             .collectList()
             .map(l -> {
                 var builder = new MultipartBodyBuilder();
@@ -137,6 +140,17 @@ public class RestController {
                 ));
                 return builder.build();
             })
+            .doOnSubscribe(s -> log.info("RestController.findAttachments.in id = {}", id))
+            .doOnSuccess(s -> log.info("RestController.findAttachments.out"));
+    }
+
+    @GetMapping(value = "/attachment/{id}",
+        produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
+    @ResponseBody
+    public Mono<byte[]> findAttachmentsById(@PathVariable(value = "id") Long id) {
+        return Mono.just(new FindAttachmentsByIdRequest(id))
+            .flatMap(findAttachmentByIdOperation::process)
+            .map(a -> a.content)
             .doOnSubscribe(s -> log.info("RestController.findAttachments.in id = {}", id))
             .doOnSuccess(s -> log.info("RestController.findAttachments.out"));
     }

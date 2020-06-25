@@ -3,7 +3,8 @@ package com.task.provider.service.dao;
 import com.task.provider.logic.CreateTaskOperation.AttachPhotosRequest;
 import com.task.provider.logic.CreateTaskOperation.CreateTaskRequest;
 import com.task.provider.logic.EditTaskOperation.UpdateTaskRequest;
-import com.task.provider.logic.FindAttachmentsByIdOperation.FindAttachmentsByTaskIdRequest;
+import com.task.provider.logic.FindAttachmentByIdOperation.FindAttachmentsByIdRequest;
+import com.task.provider.logic.FindAttachmentsByTaskIdOperation.FindAttachmentsByTaskIdRequest;
 import com.task.provider.logic.FindTaskByIdOperation.FindTaskByIdRequest;
 import com.task.provider.logic.FindTasksOperation.FindTasksRequest;
 import com.task.provider.logic.UpdateStatusOperation.UpdateStatusRequest;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import javax.annotation.Nullable;
 
 import static java.util.Objects.isNull;
@@ -30,9 +32,16 @@ public class R2dbcAdapter {
             var sql = "SELECT id, title, description, CAST(status AS VARCHAR), CAST(type AS VARCHAR), CAST(coordinate AS VARCHAR), " +
                 "reward, assignee, due_date, updated, created_by, created " +
                 "FROM public.task WHERE id = $1";
-            return request.bindOn(h.createQuery(sql))
+            var task = request.bindOn(h.createQuery(sql))
                 .mapRow(Task::fromGetByIdRow)
                 .next();
+
+            sql = "SELECT ARRAY(SELECT id FROM public.attachment WHERE task_id = $1)";
+            var attachmentIds = request.bindOn(h.createQuery(sql))
+                .mapRow(r -> List.of((Integer[]) r.get("array")))
+                .next();
+            return task.zipWith(attachmentIds)
+                .map(t -> t.getT1().setAttachmentIds(t.getT2()));
         });
     }
 
@@ -44,6 +53,15 @@ public class R2dbcAdapter {
             );
             return request.bindOn(h.createQuery(sql))
                 .mapRow(Task::fromFindRow);
+        });
+    }
+
+    public Mono<Attachment> findAttachmentsById(FindAttachmentsByIdRequest request) {
+        return this.handler.withHandle(h -> {
+            var sql = "SELECT id, task_id, content, type, length FROM public.attachment WHERE id = $1";
+            return request.bindOn(h.createQuery(sql))
+                .mapRow(Attachment::fromRow)
+                .next();
         });
     }
 
