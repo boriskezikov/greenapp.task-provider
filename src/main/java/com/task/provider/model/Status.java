@@ -4,12 +4,12 @@ import static java.lang.String.format;
 
 public enum Status {
 
-    TRASHED(-1),
+    TRASHED(100),
     CREATED(1),
     WAITING_FOR_APPROVE(2),
     APPROVED(3),
     TO_DO(4),
-    IN_PROGRESS(5),
+    IN_PROGRESS(4),
     RESOLVED(6),
     COMPLETED(7);
 

@@ -74,6 +74,8 @@ public class EditTaskOperation {
             }
             if (isNull(oldTask.assignee) && nonNull(newTask.assignee)) {
                 return new UpdateTaskRequest(Task.withNewStatus(newTask, Status.IN_PROGRESS)).asMono();
+            } else if (nonNull(oldTask.assignee) && isNull(newTask.assignee)) {
+                return new UpdateTaskRequest(Task.withNewStatus(newTask, Status.TO_DO)).asMono();
             }
             return new UpdateTaskRequest(newTask).asMono();
         }
